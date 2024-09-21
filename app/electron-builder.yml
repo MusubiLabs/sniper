@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: focus-chain-app
+productName: sniper-chain-app
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: focus-chain-app
+  executableName: sniper-chain-app
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

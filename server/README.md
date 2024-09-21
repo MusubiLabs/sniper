@@ -3,7 +3,7 @@
 1. start postgress on local
 
 ```
-docker run --name focus-db -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
+docker run --name sniper-db -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
 ```
 
 2. start server
