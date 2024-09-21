@@ -15,7 +15,15 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      chainId: 31337,
+      forking: {
+        url: "https://opt-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb",
+        blockNumber: 16695388,
+      },
+      accounts: [
+        {privateKey:process.env.PRIVATE_KEY as string,balance: "100000000000000000000000"},
+
+        {privateKey:process.env.PRIVATE_KEY2 as string,balance: "100000000000000000000000"}
+      ]
     },
     'op-sepolia': {
       url: 'https://opt-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb',

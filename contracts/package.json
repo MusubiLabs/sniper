@@ -14,7 +14,6 @@
     "@ethsign/sp-sdk": "^0.7.2",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
-    "@worldcoin/world-id-contracts": "^0.1.1",
     "dotenv": "^16.4.5",
     "hardhat": "^2.22.9",
     "hardhat-contract-sizer": "^2.10.0",
