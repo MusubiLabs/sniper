@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 import {Attestation} from "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
 import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
-import {IWorldID} from "@worldcoin/world-id-contracts/src/interfaces/IWorldID.sol";
+import {IWorldID} from "./interfaces/IWorldID.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import "./error.sol";
@@ -81,11 +81,11 @@ contract WorldVerifier {
             attester: address(this),
             validUntil: 0,
             dataLocation: DataLocation.ONCHAIN,
-            revoked: false,
+            revoked: true,
             recipients: new bytes[](1),
-            data: abi.encodePacked(msg.sender, root, nullifierHash, proof)
+            data: abi.encode(root, nullifierHash, proof)
         });
-        attestation.recipients[0] = (abi.encodePacked(msg.sender));
+        attestation.recipients[0] = (abi.encode(msg.sender));
         // Emit SP attest here
         signProtocol.attest(attestation, "", "", "");
         isHuman[msg.sender] = true;
@@ -104,7 +104,6 @@ contract WorldVerifier {
         // We now verify the provided proof is valid and the user is verified by World ID
         worldId.verifyProof(
             root,
-            groupId,
             abi.encodePacked(signal).hashToField(),
             nullifierHash,
             externalNullifierHash,
