@@ -100,7 +100,7 @@ describe("Sniper", function () {
     //   describe("Validations", function () {
     it("Should create zone correctly", async function () {
       const { sniper, publicClient, owner } = await loadFixture(deploySniperFixture);
-      let tx = await sniper.write.createSniperZone(["test", 25n * 3600n]);
+      let tx = await sniper.write.createSniperZone([25n * 3600n, BigInt(await time.latest()), "test",]);
 
       const receipt = await publicClient.getTransactionReceipt({ hash: tx });
       // Access the events from the receipt
@@ -118,7 +118,7 @@ describe("Sniper", function () {
         sniper.address,
         { client: { wallet: otherAccount } }
       );
-      await expect(sniperAsOther.write.createSniperZone(["test", 25n * 3600n])).to.be.rejectedWith("User not verified by WorldID");
+      await expect(sniperAsOther.write.createSniperZone([25n * 3600n, BigInt(await time.latest()), "test",])).to.be.rejectedWith("User not verified by WorldID");
 
     });
   });
@@ -144,7 +144,7 @@ describe("Sniper", function () {
         { client: { wallet: otherAccount } }
       );
       await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
-      await sniperAsOther.write.createSniperZone(["test", 25n * 60n]);
+      await sniperAsOther.write.createSniperZone([25n * 60n, BigInt(await time.latest()), "test"]);
       await time.increase(60 * 60);
       let tx = await sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails]);
 
@@ -169,7 +169,7 @@ describe("Sniper", function () {
         { client: { wallet: otherAccount } }
       );
       await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
-      await sniperAsOther.write.createSniperZone(["test", 25n * 60n]);
+      await sniperAsOther.write.createSniperZone([25n * 60n, BigInt(await time.latest()), "test"]);
       await time.increase(60 * 60);
       await sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails]);
       expect(sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails])).to.be.rejectedWith("Zone already completed");
@@ -187,7 +187,7 @@ describe("Sniper", function () {
         { client: { wallet: otherAccount } }
       );
       await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
-      await sniperAsOther.write.createSniperZone(["test", 25n * 60n]);
+      await sniperAsOther.write.createSniperZone([25n * 60n, BigInt(await time.latest()), "test"]);
       await expect(sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails])).to.be.rejectedWith("Zone not yet ended");
     });
   });

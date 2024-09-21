@@ -66,12 +66,13 @@ contract Sniper is Ownable(msg.sender) {
     }
 
     function createSniperZone(
-        string memory ipfsHash,
-        uint256 duration
+        uint256 duration,
+        uint256 startTime,
+        string memory ipfsHash
     ) external onlyVerifiedUser {
         SniperZone memory newZone = SniperZone({
             ipfsHash: ipfsHash,
-            startTime: block.timestamp,
+            startTime: startTime,
             duration: duration,
             completed: false,
             attestationId: 0
