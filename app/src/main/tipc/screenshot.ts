@@ -88,7 +88,7 @@ async function getUserAttention(params: { address: string; goalId: string; scree
   console.log(distracted)
 
   if (!distracted) {
-    showNotification('Stay Focused', data?.data?.feedback || 'You are still snipered')
+    showNotification('Stay Focused', data?.data?.feedback || 'You are still focused')
   }
 
   return data?.data
