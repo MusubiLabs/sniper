@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 import {Attestation} from "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
 import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
 import {IWorldID} from "./interfaces/IWorldID.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import "./error.sol";
@@ -87,7 +88,7 @@ contract WorldVerifier {
         });
         attestation.recipients[0] = (abi.encode(msg.sender));
         // Emit SP attest here
-        signProtocol.attest(attestation, "", "", "");
+        signProtocol.attest(attestation, Strings.toHexString(uint256(uint160(msg.sender)), 20), "", "");
         isHuman[msg.sender] = true;
     }
 
