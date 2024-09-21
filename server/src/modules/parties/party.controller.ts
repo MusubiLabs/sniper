@@ -17,12 +17,18 @@ export class PartyController {
   }
 
   @Post('finish')
-  finishParty(@Body() body: { partyId: string, pollId: string, maciInstance: string }) {
-    return this.partyService.finishParty(body.partyId, body.pollId, body.maciInstance);
+  finishParty(
+    @Body() body: { partyId: string; pollId: string; maciInstance: string },
+  ) {
+    return this.partyService.finishParty(
+      body.partyId,
+      body.pollId,
+      body.maciInstance,
+    );
   }
 
   @Post('vote-results')
-  getVoteResults(@Body() body: { partyId: string[] }) {
+  getVoteResults(@Body() body: { partyId: string }) {
     return this.partyService.getVoteResults(body.partyId);
   }
   @Post('claim-data')

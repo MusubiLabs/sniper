@@ -24,8 +24,8 @@ export class PartyService {
     return result;
   }
   
-  async getVoteResults(partyId: string[]) {
-    return partyId.map((id) => { getTally(BigInt(id))})
+  async getVoteResults(partyId: string) {
+    return getTally(BigInt(partyId));
   }
   
   async getClaimData(partyId: string, recipientIndex: number, recipientTreeDepth: number) {
