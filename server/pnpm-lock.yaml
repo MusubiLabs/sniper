@@ -32,6 +32,9 @@ importers:
       maci-cli:
         specifier: ^2.3.0
         version: 2.3.0(tmqlnjrau4ad63zdbyqrc6zdeq)
+      maci-crypto:
+        specifier: ^2.2.0
+        version: 2.2.0
       pinata-web3:
         specifier: ^0.4.1
         version: 0.4.1
