@@ -15,7 +15,7 @@ export default async function sniperContractCall(
 ) {
   const provider = new ethers.JsonRpcProvider(process.env.PROVIDER_URL);
   const privateKey = process.env.PRIVATE_KEY;
-  const contractAddress = process.env.FOCUS_CONTRACT_ADRESS;
+  const contractAddress = process.env.SNIPER_CONTRACT_ADRESS;
   const wallet = new ethers.Wallet(privateKey, provider);
 
   const contract = new ethers.Contract(contractAddress, abi, wallet);

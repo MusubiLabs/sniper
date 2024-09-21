@@ -1,586 +1,482 @@
-import { getContract, PublicClient, WalletClient } from 'viem';
+import { getContract, PublicClient, WalletClient } from 'viem'
 const abi = [
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "_worldVerifier",
-        "type": "address"
+        internalType: 'address',
+        name: '_worldVerifier',
+        type: 'address'
       },
       {
-        "internalType": "address",
-        "name": "_signProtocol",
-        "type": "address"
+        internalType: 'address',
+        name: '_signProtocol',
+        type: 'address'
       },
       {
-        "internalType": "address",
-        "name": "_rewardToken",
-        "type": "address"
+        internalType: 'address',
+        name: '_rewardToken',
+        type: 'address'
       },
       {
-        "internalType": "uint64",
-        "name": "_schemaId",
-        "type": "uint64"
+        internalType: 'uint64',
+        name: '_schemaId',
+        type: 'uint64'
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    stateMutability: 'nonpayable',
+    type: 'constructor'
   },
   {
-    "inputs": [],
-    "name": "InvalidPartyManager",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "InvalidProductivityScore",
-    "type": "error"
-  },
-  {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
+        internalType: 'address',
+        name: 'owner',
+        type: 'address'
       }
     ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
+    name: 'OwnableInvalidOwner',
+    type: 'error'
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        internalType: 'address',
+        name: 'account',
+        type: 'address'
       }
     ],
-    "name": "OwnableUnauthorizedAccount",
-    "type": "error"
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error'
   },
   {
-    "inputs": [],
-    "name": "UnverifiedUser",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ZoneAlreadyFinalized",
-    "type": "error"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address'
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address'
       }
     ],
-    "name": "OwnershipTransferred",
-    "type": "event"
+    name: 'OwnershipTransferred',
+    type: 'event'
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address'
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "zoneId",
-        "type": "uint256"
+        indexed: false,
+        internalType: 'uint256',
+        name: 'zoneId',
+        type: 'uint256'
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "distractionScore",
-        "type": "uint256"
+        indexed: false,
+        internalType: 'uint256',
+        name: 'distractionScore',
+        type: 'uint256'
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "productivityScore",
-        "type": "uint256"
+        indexed: false,
+        internalType: 'uint256',
+        name: 'productivityScore',
+        type: 'uint256'
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "finalDuration",
-        "type": "uint256"
+        indexed: false,
+        internalType: 'uint256',
+        name: 'finalDuration',
+        type: 'uint256'
       },
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "attestationId",
-        "type": "uint64"
+        indexed: false,
+        internalType: 'uint64',
+        name: 'attestationId',
+        type: 'uint64'
       }
     ],
-    "name": "ZoneCompleted",
-    "type": "event"
+    name: 'ZoneCompleted',
+    type: 'event'
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address'
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "zoneId",
-        "type": "uint256"
+        indexed: false,
+        internalType: 'uint256',
+        name: 'zoneId',
+        type: 'uint256'
       },
       {
-        "components": [
+        components: [
           {
-            "internalType": "string",
-            "name": "ipfsHash",
-            "type": "string"
+            internalType: 'string',
+            name: 'ipfsHash',
+            type: 'string'
           },
           {
-            "internalType": "uint256",
-            "name": "startTime",
-            "type": "uint256"
+            internalType: 'uint256',
+            name: 'startTime',
+            type: 'uint256'
           },
           {
-            "internalType": "uint256",
-            "name": "duration",
-            "type": "uint256"
+            internalType: 'uint256',
+            name: 'duration',
+            type: 'uint256'
           },
           {
-            "internalType": "bool",
-            "name": "completed",
-            "type": "bool"
+            internalType: 'bool',
+            name: 'completed',
+            type: 'bool'
           },
           {
-            "internalType": "uint64",
-            "name": "attestationId",
-            "type": "uint64"
-          },
-          {
-            "internalType": "enum Sniper.ZoneMode",
-            "name": "mode",
-            "type": "uint8"
+            internalType: 'uint64',
+            name: 'attestationId',
+            type: 'uint64'
           }
         ],
-        "indexed": false,
-        "internalType": "struct Sniper.SniperZone",
-        "name": "zone",
-        "type": "tuple"
+        indexed: false,
+        internalType: 'struct Sniper.SniperZone',
+        name: 'zone',
+        type: 'tuple'
       }
     ],
-    "name": "ZoneCreated",
-    "type": "event"
+    name: 'ZoneCreated',
+    type: 'event'
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint256",
-        "name": "distractionScore",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'distractionScore',
+        type: 'uint256'
       },
       {
-        "internalType": "uint256",
-        "name": "productivityScore",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'productivityScore',
+        type: 'uint256'
       },
       {
-        "internalType": "uint256",
-        "name": "finalDuration",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'finalDuration',
+        type: 'uint256'
       },
       {
-        "internalType": "uint256",
-        "name": "estimateDuration",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'estimateDuration',
+        type: 'uint256'
       }
     ],
-    "name": "calculateReward",
-    "outputs": [
+    name: 'calculateReward',
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
       }
     ],
-    "stateMutability": "pure",
-    "type": "function"
+    stateMutability: 'pure',
+    type: 'function'
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
+        internalType: 'address',
+        name: 'user',
+        type: 'address'
       },
       {
-        "internalType": "uint256",
-        "name": "zoneId",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'zoneId',
+        type: 'uint256'
       },
       {
-        "components": [
+        components: [
           {
-            "internalType": "uint256",
-            "name": "distractionScore",
-            "type": "uint256"
+            internalType: 'uint256',
+            name: 'distractionScore',
+            type: 'uint256'
           },
           {
-            "internalType": "uint256",
-            "name": "productivityScore",
-            "type": "uint256"
+            internalType: 'uint256',
+            name: 'productivityScore',
+            type: 'uint256'
           },
           {
-            "internalType": "uint256",
-            "name": "finalDuration",
-            "type": "uint256"
+            internalType: 'uint256',
+            name: 'finalDuration',
+            type: 'uint256'
           },
           {
-            "internalType": "string",
-            "name": "ipfsHash",
-            "type": "string"
+            internalType: 'string',
+            name: 'ipfsHash',
+            type: 'string'
           }
         ],
-        "internalType": "struct Sniper.CompletedDetails",
-        "name": "details",
-        "type": "tuple"
+        internalType: 'struct Sniper.CompletedDetails',
+        name: 'details',
+        type: 'tuple'
       }
     ],
-    "name": "completeZone",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: 'completeZone',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint256",
-        "name": "duration",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'duration',
+        type: 'uint256'
       },
       {
-        "internalType": "uint256",
-        "name": "startTime",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256'
       },
       {
-        "internalType": "string",
-        "name": "ipfsHash",
-        "type": "string"
+        internalType: 'string',
+        name: 'ipfsHash',
+        type: 'string'
+      }
+    ],
+    name: 'createSniperZone',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'zoneId',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'rewardToken',
+    outputs: [
+      {
+        internalType: 'contract IERC20',
+        name: '',
+        type: 'address'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'schemaId',
+    outputs: [
+      {
+        internalType: 'uint64',
+        name: '',
+        type: 'uint64'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'signProtocol',
+    outputs: [
+      {
+        internalType: 'contract ISP',
+        name: '',
+        type: 'address'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address'
+      }
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address'
       },
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
       }
     ],
-    "name": "createPartySniperZone",
-    "outputs": [
+    name: 'userZones',
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "zoneId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "duration",
-        "type": "uint256"
+        internalType: 'string',
+        name: 'ipfsHash',
+        type: 'string'
       },
       {
-        "internalType": "uint256",
-        "name": "startTime",
-        "type": "uint256"
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256'
       },
       {
-        "internalType": "string",
-        "name": "ipfsHash",
-        "type": "string"
-      }
-    ],
-    "name": "createSniperZone",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "zoneId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "partyManager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "rewardToken",
-    "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "schemaId",
-    "outputs": [
-      {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_partyManager",
-        "type": "address"
-      }
-    ],
-    "name": "setPartyManager",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "signProtocol",
-    "outputs": [
-      {
-        "internalType": "contract ISP",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        internalType: 'uint256',
+        name: 'duration',
+        type: 'uint256'
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: 'bool',
+        name: 'completed',
+        type: 'bool'
+      },
+      {
+        internalType: 'uint64',
+        name: 'attestationId',
+        type: 'uint64'
       }
     ],
-    "name": "userZones",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "ipfsHash",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "startTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "duration",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "completed",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint64",
-        "name": "attestationId",
-        "type": "uint64"
-      },
-      {
-        "internalType": "enum Sniper.ZoneMode",
-        "name": "mode",
-        "type": "uint8"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function'
   },
   {
-    "inputs": [],
-    "name": "worldVerifier",
-    "outputs": [
+    inputs: [],
+    name: 'worldVerifier',
+    outputs: [
       {
-        "internalType": "contract IWorldVerifier",
-        "name": "",
-        "type": "address"
+        internalType: 'contract IWorldVerifier',
+        name: '',
+        type: 'address'
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: 'view',
+    type: 'function'
   }
-];
+]
 
 interface SniperZone {
-  ipfsHash: string;
-  startTime: bigint;
-  duration: bigint;
-  completed: boolean;
-  attestationId: bigint;
+  ipfsHash: string
+  startTime: bigint
+  duration: bigint
+  completed: boolean
+  attestationId: bigint
 }
 
 interface CompletedDetails {
-  distractionScore: bigint;
-  productivityScore: bigint;
-  observations: string;
-  assessment: string;
-  feedback: string;
+  distractionScore: bigint // 走神次数
+  productivityScore: bigint // 平均分
+  // 花费的时间 BigInt
 }
 
+// ipfsHash:
+// goal 完整总结
+// [
+//  observations: string;
+//  assessment: string;
+//  feedback: string;
+// ]
+
 class SniperContract {
-  private contractAddress: string;
-  private contractAbi: any;
-  private publicClient: PublicClient;
-  private walletClient: WalletClient;
-  private contractInstance: any;
+  public contractAddress: string
+  private contractAbi: any
+  public publicClient: PublicClient
+  private walletClient: WalletClient
+  public contractInstance: any
 
   // Tips: Get the wallet client and public client from the dynamic context
   // import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
   // const { primaryWallet } = useDynamicContext();
   // const walletClient = await primaryWallet?.connector?.getWalletClient();
-  constructor(
-    contractAddress: string,
-    publicClient: PublicClient,
-    walletClient: WalletClient
-  ) {
-    this.contractAddress = contractAddress;
-    this.contractAbi = abi;
-    this.walletClient = walletClient;
-    this.publicClient = publicClient;
-    this.contractInstance = this.getContractInstance();
+  constructor(contractAddress: string, publicClient: PublicClient, walletClient: WalletClient) {
+    this.contractAddress = contractAddress
+    this.contractAbi = abi
+    this.walletClient = walletClient
+    this.publicClient = publicClient
+    this.contractInstance = this.getContractInstance()
   }
 
   private getContractInstance() {
     return getContract({
       address: this.contractAddress as `0x${string}`,
       abi: this.contractAbi,
-      client: { public: this.publicClient, wallet: this.walletClient },
-    });
+      client: { public: this.publicClient, wallet: this.walletClient }
+    })
   }
 
-  async createSniperZone(
-    ipfsHash: string,
-    startTime: bigint,
-    duration: bigint
-  ): Promise<any> {
-    return this.contractInstance.write.createSniperZone([
-      startTime,
-      duration,
-      ipfsHash,
-    ]);
+  async createSniperZone(ipfsHash: string, startTime: bigint, duration: bigint): Promise<any> {
+    return this.contractInstance.write.createSniperZone([startTime, duration, ipfsHash])
   }
 
-  async completeZone(
-    user: string,
-    zoneId: bigint,
-    details: CompletedDetails
-  ): Promise<any> {
-    return this.contractInstance.write.completeZone([
-      user,
-      zoneId,
-      details,
-    ]);
+  async completeZone(user: string, zoneId: bigint, details: CompletedDetails): Promise<any> {
+    return this.contractInstance.write.completeZone([user, zoneId, details])
   }
 
   async getOwner(): Promise<string> {
-    return this.contractInstance.read.owner();
+    return this.contractInstance.read.owner()
   }
 
   async getRewardToken(): Promise<string> {
-    return this.contractInstance.read.rewardToken();
+    return this.contractInstance.read.rewardToken()
   }
 
   async getSchemaId(): Promise<bigint> {
-    return this.contractInstance.read.schemaId();
+    return this.contractInstance.read.schemaId()
   }
 
   async getSignProtocol(): Promise<string> {
-    return this.contractInstance.read.signProtocol();
+    return this.contractInstance.read.signProtocol()
   }
 
   async getUserZone(user: string, zoneId: bigint): Promise<SniperZone> {
-    return this.contractInstance.read.userZones([user, zoneId]);
+    return this.contractInstance.read.userZones([user, zoneId])
   }
 }
 
-export { SniperContract };
+export { SniperContract }

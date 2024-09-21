@@ -45,8 +45,6 @@ const ContributionGraph: React.FC = () => {
     }))
   }, [data])
 
-  console.log(formattedData)
-
   if (!formattedData || !formattedData.length) {
     return null
   }

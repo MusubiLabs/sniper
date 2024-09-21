@@ -25,8 +25,8 @@ async function main() {
     } else {
         spHook = await hre.viem.getContractAt("SniperSPHook", process.env.SIGN_PROTOCOL_HOOK_ADDRESS as string, { client: { wallet: deployer } });
     }
-    if (process.env.SNIPER_POINT_ADDRESS) {
-        sniperCoin = { address: process.env.SNIPER_POINT_ADDRESS }
+    if (process.env.SNIPER_COIN_ADDRESS) {
+        sniperCoin = { address: process.env.SNIPER_COIN_ADDRESS }
     } else {
         sniperCoin = await hre.ignition.deploy(sniperCoinModule, {
             parameters: {

@@ -40,7 +40,7 @@ export function getCalculateGoal(data: { goalId: string }) {
   })
 }
 
-export function finishGoal(data: { goalId: string; sessionId: string }) {
+export function finishGoal(data: { user: string; goalId: string; zoneId: string }) {
   return request('/api/goals/finish', {
     data
   })

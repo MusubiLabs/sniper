@@ -57,11 +57,13 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
 
       setIsStarting(true)
 
+      console.log(goalIpfsCid, BigInt(Date.now()), BigInt(duration * 60))
+
       // TODO 链上创建记录
       const hash = await sniperContract.createSniperZone(
         goalIpfsCid,
         BigInt(Date.now()),
-        BigInt(duration * 60 * 1000)
+        BigInt(duration * 60)
       )
 
       console.log('hash', hash)
@@ -102,7 +104,7 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
       )}
       {isStarted && (
         <div className="flex flex-col items-center gap-2">
-          <FinishGoal ifpsCid={data.goalIpfsCid} goalId={goalId} refetch={refetch} />
+          <FinishGoal goalId={goalId} refetch={refetch} />
           <TimeTracker startedAt={data.startedAt} />
         </div>
       )}

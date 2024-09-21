@@ -14,8 +14,6 @@ export default function FinishedGoals() {
     enabled: !!wallet?.address
   })
 
-  console.log('data', goals)
-
   return (
     <div className="w-full flex flex-col p-8 gap-4">
       {goals?.map((goal) => (
