@@ -13,7 +13,7 @@ export default async function sniperContractCall(
   zoneId: number,
   details: any
 ) {
-  const provider = new ethers.JsonRpcProvider('https://sepolia.optimism.io');
+  const provider = new ethers.JsonRpcProvider(process.env.PROVIDER_URL);
   const privateKey = process.env.PRIVATE_KEY;
   const contractAddress = process.env.FOCUS_CONTRACT_ADRESS;
   const wallet = new ethers.Wallet(privateKey, provider);
