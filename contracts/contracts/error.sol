@@ -24,4 +24,5 @@ error InvalidPartyEndTime();
 error PartyHasEnded();
 error InvalidProductivityScore();
 error InvalidMACIFactory();
+error InvalidPartyManager();
 error UserAlreadyJoined();

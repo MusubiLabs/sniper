@@ -6,7 +6,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISP, Attestation} from "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import {IWorldVerifier} from "./interfaces/IWorldVerifier.sol";
 import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
-
 import "./error.sol";
 
 contract Sniper is Ownable(msg.sender) {
@@ -20,7 +19,7 @@ contract Sniper is Ownable(msg.sender) {
     address public partyManager;
     uint64 public immutable schemaId;
     enum ZoneMode {
-        Solo,
+        Single,
         Party
     }
 
@@ -60,14 +59,12 @@ contract Sniper is Ownable(msg.sender) {
         address _worldVerifier,
         address _signProtocol,
         address _rewardToken,
-        address _partyManager,
         uint64 _schemaId
     ) {
         worldVerifier = IWorldVerifier(_worldVerifier);
         signProtocol = ISP(_signProtocol);
         rewardToken = IERC20(_rewardToken);
         schemaId = _schemaId;
-        partyManager = _partyManager;
     }
 
     modifier onlyVerifiedUser() {
@@ -79,9 +76,13 @@ contract Sniper is Ownable(msg.sender) {
 
     modifier onlyPartyManager() {
         if (msg.sender != partyManager) {
-            revert UnverifiedUser();
+            revert InvalidPartyManager();
         }
         _;
+    }
+
+    function setPartyManager(address _partyManager) external onlyOwner {
+        partyManager = _partyManager;
     }
 
     function createSniperZone(
@@ -95,7 +96,7 @@ contract Sniper is Ownable(msg.sender) {
             duration: duration,
             completed: false,
             attestationId: 0,
-            mode: ZoneMode.Solo
+            mode: ZoneMode.Single
         });
 
         userZones[msg.sender].push(newZone);
@@ -130,6 +131,7 @@ contract Sniper is Ownable(msg.sender) {
         uint256 zoneId,
         CompletedDetails calldata details
     ) external onlyOwner {
+
         SniperZone storage zone = userZones[user][zoneId];
         if (zone.completed) {
             revert ZoneAlreadyFinalized();
@@ -153,7 +155,7 @@ contract Sniper is Ownable(msg.sender) {
                 details.ipfsHash
             )
         });
-        attestation.recipients[0] = (abi.encodePacked(user));
+        attestation.recipients[0] = (abi.encode(user));
         zone.attestationId = signProtocol.attest(
             attestation,
             rewardToken,

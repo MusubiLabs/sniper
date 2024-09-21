@@ -36,7 +36,7 @@ export const MACI_TREE_ARITY = 5
 // const provider: ethers.Provider = new ethers.JsonRpcProvider('https://opt-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb', new ethers.Network('optimism_sepolia', 11155420), { staticNetwork: true })
 // const provider: ethers.Provider = new ethers.JsonRpcProvider('https://base-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb', new ethers.Network('base_sepolia', 84532), { staticNetwork: true })
 // const provider: ethers.Provider = new ethers.JsonRpcProvider('https://arb-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb', new ethers.Network('arbitrum_sepolia', 421614), { staticNetwork: true })
-const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/', new ethers.Network('optimism_sepolia', 11155420), { staticNetwork: true })
+const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545/', new ethers.Network('optimism_sepolia', 31337), { staticNetwork: true })
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY as string, provider)
 export const getSigner = async (): Promise<Signer> => {
 

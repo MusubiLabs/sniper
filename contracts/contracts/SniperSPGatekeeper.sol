@@ -33,7 +33,7 @@ contract SniperSPGatekeeper is SignUpGatekeeper, Ownable(msg.sender) {
         _;
     }
 
-    function setPartyManager(address _maciFactory) external onlyOwner {
+    function setMACIFactory(address _maciFactory) external onlyOwner {
         maciFactory = _maciFactory;
     }
 
