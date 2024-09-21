@@ -9,6 +9,13 @@ export class Goal extends BaseEntity {
   @Column({ comment: '会话ID', nullable: true })
   sessionId: string;
 
+  @Column({
+    comment: '类型 solo | party',
+    nullable: true,
+    default: 0,
+  })
+  mode: number;
+
   @Column({ comment: '目标名称' })
   name: string;
 
