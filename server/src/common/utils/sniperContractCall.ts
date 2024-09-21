@@ -10,8 +10,8 @@ interface CompletedDetails {
 
 export default async function sniperContractCall(
   userId: string,
-  zoneId: number,
-  details: any
+  zoneId: bigint,
+  details: CompletedDetails,
 ) {
   const provider = new ethers.JsonRpcProvider(process.env.PROVIDER_URL);
   const privateKey = process.env.PRIVATE_KEY;

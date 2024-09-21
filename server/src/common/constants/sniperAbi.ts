@@ -26,6 +26,16 @@ export const abi = [
     "type": "constructor"
   },
   {
+    "inputs": [],
+    "name": "InvalidPartyManager",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidProductivityScore",
+    "type": "error"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -45,6 +55,16 @@ export const abi = [
       }
     ],
     "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UnverifiedUser",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZoneAlreadyFinalized",
     "type": "error"
   },
   {
@@ -85,6 +105,18 @@ export const abi = [
         "indexed": false,
         "internalType": "uint256",
         "name": "distractionScore",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "productivityScore",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "finalDuration",
         "type": "uint256"
       },
       {
@@ -138,6 +170,11 @@ export const abi = [
             "internalType": "uint64",
             "name": "attestationId",
             "type": "uint64"
+          },
+          {
+            "internalType": "enum Sniper.ZoneMode",
+            "name": "mode",
+            "type": "uint8"
           }
         ],
         "indexed": false,
@@ -148,6 +185,40 @@ export const abi = [
     ],
     "name": "ZoneCreated",
     "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "distractionScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "productivityScore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "finalDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "estimateDuration",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
     "inputs": [
@@ -174,18 +245,13 @@ export const abi = [
             "type": "uint256"
           },
           {
-            "internalType": "string",
-            "name": "observations",
-            "type": "string"
+            "internalType": "uint256",
+            "name": "finalDuration",
+            "type": "uint256"
           },
           {
             "internalType": "string",
-            "name": "assessment",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "feedback",
+            "name": "ipfsHash",
             "type": "string"
           }
         ],
@@ -215,16 +281,69 @@ export const abi = [
         "internalType": "string",
         "name": "ipfsHash",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "createPartySniperZone",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "zoneId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "ipfsHash",
+        "type": "string"
       }
     ],
     "name": "createSniperZone",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "zoneId",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "partyManager",
     "outputs": [
       {
         "internalType": "address",
@@ -266,6 +385,19 @@ export const abi = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_partyManager",
+        "type": "address"
+      }
+    ],
+    "name": "setPartyManager",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -333,6 +465,11 @@ export const abi = [
         "internalType": "uint64",
         "name": "attestationId",
         "type": "uint64"
+      },
+      {
+        "internalType": "enum Sniper.ZoneMode",
+        "name": "mode",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
