@@ -87,8 +87,8 @@ export default function FinishGoal({ goalId, refetch }: { goalId: string; refetc
             </span>
           </div>
           <div>
-            Spend times (minutes):
-            <span className="text-large font-mono text-black ml-2">{caculateResult?.duration}</span>
+            Spend times:
+            <span className="text-large font-mono text-black ml-2">{Math.floor(caculateResult?.duration / 60)} minutes {Math.floor(caculateResult?.duration % 60)} seconds</span>
           </div>
         </div>
         <DialogFooter>

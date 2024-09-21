@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react'
 
-export const TimeTracker = ({ startedAt }) => {
+export const TimeTracker = ({ startedAt, endAt, reverse }) => {
   const [elapsedTime, setElapsedTime] = useState(0)
 
   useEffect(() => {
     const startTime = new Date(startedAt).getTime()
-
+    const endTime = new Date(endAt).getTime()
     const timer = setInterval(() => {
       const now = new Date().getTime()
-      const elapsed = now - startTime
-      setElapsedTime(elapsed)
+      if(reverse){
+        if(endTime < now){
+          setElapsedTime(0)
+        }else{
+          const elapsed = endTime - now
+          setElapsedTime(elapsed)
+        }
+      }else{
+        const elapsed = now - startTime
+        setElapsedTime(elapsed)
+      }
     }, 1000) // 每秒更新一次
 
     return () => clearInterval(timer) // 清理定时器

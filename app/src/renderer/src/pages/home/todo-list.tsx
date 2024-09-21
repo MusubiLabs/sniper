@@ -111,7 +111,8 @@ export default function TODO() {
       description: values?.description || '',
       duration: Number(values.duration),
       address: wallet?.address!,
-      goalIpfsCid: ipfsResult.IpfsHash
+      goalIpfsCid: ipfsResult.IpfsHash,
+      mode: 0
     })
   }
 
@@ -160,13 +161,13 @@ export default function TODO() {
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Estimated usage duration</FormLabel>
+                    <FormLabel>Estimated usage duration (minutes)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         min="1"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) * 60)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -196,7 +197,7 @@ export default function TODO() {
                 <div className="space-y-1 flex-1">
                   <h3 className="font-medium">{todo.name}</h3>
                   <p className="text-sm text-muted-foreground">{todo.description}</p>
-                  <p className="text-sm">Estimated time: {todo.duration} minutes</p>
+                  <p className="text-sm">Estimated time: {Math.floor(todo.duration / 60)} minutes {todo.duration % 60} seconds</p>
                 </div>
                 <div className="space-y-2 self-center">
                   <StartGoal refetch={refetch} data={todo} />

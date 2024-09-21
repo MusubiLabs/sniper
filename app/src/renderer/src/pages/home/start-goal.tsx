@@ -15,7 +15,7 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
 
   const wallet = useConnectedWallet()
   const { toast } = useToast()
-  const { id: goalId, isStarted, goalIpfsCid, duration } = data
+  const { id: goalId, isStarted, goalIpfsCid, duration, mode } = data
 
   const { sniperContract } = useWeb3Content((state) => ({
     sniperContract: state.snipertContract
@@ -58,17 +58,18 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
       setIsStarting(true)
 
       console.log(goalIpfsCid, BigInt(Date.now()), BigInt(duration * 60))
+      if (mode == 0) {
+        // TODO 链上创建记录
+        const hash = await sniperContract.createSniperZone(
+          goalIpfsCid,
+          BigInt(Date.now()),
+          BigInt(duration * 60)
+        )
 
-      // TODO 链上创建记录
-      const hash = await sniperContract.createSniperZone(
-        goalIpfsCid,
-        BigInt(Date.now()),
-        BigInt(duration * 60)
-      )
+        console.log('hash', hash)
 
-      console.log('hash', hash)
-
-      await sniperContract.publicClient.waitForTransactionReceipt({ hash })
+        await sniperContract.publicClient.waitForTransactionReceipt({ hash })
+      }
 
       startGoalMutate.mutate({
         address: wallet?.address,
@@ -105,7 +106,7 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
       {isStarted && (
         <div className="flex flex-col items-center gap-2">
           <FinishGoal goalId={goalId} refetch={refetch} />
-          <TimeTracker startedAt={data.startedAt} />
+          <TimeTracker startedAt={data.startedAt} endAt={0} reverse={false} />
         </div>
       )}
     </>

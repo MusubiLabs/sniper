@@ -1,6 +1,9 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { resolve } from 'path'
+import nodeExternals from 'vite-plugin-node-externals'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+
 
 export default defineConfig({
   main: {
@@ -12,20 +15,30 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/src'),
+        crypto: resolve('node_modules/crypto-browserify')
       }
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      nodeExternals({
+        include: ['assert'] // Except for fsevents
+      }),
+      NodeGlobalsPolyfillPlugin({
+        process: true,
+        buffer: true,
+      })
+    ],
     // optimizeDeps: {
-    //   esbuildOptions: {
-    //     // Enable esbuild polyfill plugins
-    //     plugins: [
-    //       NodeGlobalsPolyfillPlugin({
-    //         process: true
-    //       }),
-    //       NodeModulesPolyfillPlugin()
-    //     ]
-    //   }
+    // esbuildOptions: {
+    //   // Enable esbuild polyfill plugins
+    //   plugins: [
+    //     NodeGlobalsPolyfillPlugin({
+    //       process: true
+    //     }),
+    //     NodeModulesPolyfillPlugin()
+    //   ]
+    // }
     // },
     server: {
       port: 1420,
