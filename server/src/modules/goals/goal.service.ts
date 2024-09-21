@@ -186,17 +186,21 @@ export class GoalsService {
       console.log('ifpsResult', ipfsResult);
 
       console.log(user, '\n', Number(zoneId), '\n', {
-        distractionScore: calculation.distractionCount || 2,
-        productivityScore: calculation.averageProductivityScore || 2,
-        finalDuration: calculation.duration,
+        distractionScore: BigInt(calculation.distractionCount || 1),
+        productivityScore: BigInt(
+          (calculation.averageProductivityScore || 1) * 1000,
+        ),
+        finalDuration: BigInt(calculation.duration),
         ipfsHash: ipfsResult.IpfsHash,
       });
 
       // 获取用户的总结
       await sniperContractCall(user, Number(zoneId), {
-        distractionScore: calculation.distractionCount || 1,
-        productivityScore: (calculation.averageProductivityScore || 2) * 1000,
-        finalDuration: calculation.duration,
+        distractionScore: BigInt(calculation.distractionCount || 1),
+        productivityScore: BigInt(
+          (calculation.averageProductivityScore || 1) * 1000,
+        ),
+        finalDuration: BigInt(calculation.duration),
         ipfsHash: ipfsResult.IpfsHash,
       } as any);
 
