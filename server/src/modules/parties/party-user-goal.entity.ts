@@ -1,35 +1,19 @@
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { Column, Entity } from 'typeorm';
 
-@Entity('goal')
-export class Goal extends BaseEntity {
+@Entity('party-user-goal')
+export class PartyUserJoined extends BaseEntity {
   @Column({ comment: '用户钱包地址' })
   address: string;
+
+  @Column({ comment: '链上的partyId', nullable: true })
+  partyId: string;
 
   @Column({ comment: '会话ID', nullable: true })
   sessionId: string;
 
-  @Column({
-    comment: '类型 solo | party',
-    nullable: true,
-    default: 0,
-  })
-  mode: number;
-
-  @Column({ comment: '目标名称' })
-  name: string;
-
-  @Column({ comment: '目标描述', nullable: true })
-  description: string;
-
-  @Column({ comment: '目标需要的时长' })
-  duration: number;
-
   @Column({ comment: 'Goal存储在ipfs上面的hash', nullable: true })
   goalIpfsCid: string;
-
-  @Column({ comment: '目标是否完成', nullable: true })
-  resultIpfsCid: string;
 
   @Column({ comment: '目标是否结束', default: false })
   isFinished: boolean;

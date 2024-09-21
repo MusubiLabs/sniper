@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AttentionsModule } from './modules/attentions/attention.module';
 import { GoalsModule } from './modules/goals/goal.module';
+import { PartyModule } from './modules/parties/party.module';
 import { UsersModule } from './modules/users/user.module';
 
 @Module({
@@ -19,6 +20,7 @@ import { UsersModule } from './modules/users/user.module';
     UsersModule,
     GoalsModule,
     AttentionsModule,
+    PartyModule
   ],
   controllers: [],
   providers: [],
