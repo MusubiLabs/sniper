@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { eachDayOfInterval, format } from 'date-fns';
 import judgeAttention from 'src/common/utils/judgeAttention';
-import { Between, Repository } from 'typeorm';
+import { Between, Raw, Repository } from 'typeorm';
 import { Attention } from '../attentions/attention.entity';
 import { Goal } from './goal.entity';
 
@@ -20,13 +20,24 @@ export class GoalsService {
   }
 
   async findById(id: string, address: string): Promise<Goal> {
-    return this.goalRepository.findOne({ where: { id, address } });
+    return this.goalRepository.findOne({
+      where: {
+        id,
+        address: Raw((alias) => `LOWER(${alias}) = LOWER('${address}')`, {
+          value: address,
+        }),
+      },
+    });
   }
 
   async findUnfinished(address: string): Promise<Goal[]> {
-    return this.goalRepository.find({
+    console.log(address);
+
+    return await this.goalRepository.find({
       where: {
-        address,
+        address: Raw((alias) => `LOWER(${alias}) = LOWER('${address}')`, {
+          value: address,
+        }),
         isFinished: false,
       },
       order: {
@@ -150,7 +161,9 @@ export class GoalsService {
   async getFinishGoals(address: string) {
     const goals = await this.goalRepository.find({
       where: {
-        address,
+        address: Raw((alias) => `LOWER(${alias}) = LOWER('${address}')`, {
+          value: address,
+        }),
         isFinished: true,
       },
       order: {
@@ -195,83 +208,6 @@ export class GoalsService {
     return calculateGoals;
   }
 
-  // async getContributionData(address: string, startDate: Date, endDate: Date) {
-  //   // 确保日期范围不超过一年
-  //   const oneYearAgo = new Date();
-  //   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  //   if (startDate < oneYearAgo) {
-  //     startDate = oneYearAgo;
-  //   }
-
-  //   // 获取该日期范围内的所有完成的目标
-  //   const goals = await this.goalRepository.find({
-  //     where: {
-  //       address,
-  //       isFinished: true,
-  //       finishedAt: Between(startDate, endDate),
-  //     },
-  //   });
-
-  //   // 创建一个Map来存储每天的数据
-  //   const dailyData = new Map();
-
-  //   // 遍历每个目标，计算每天的贡献
-  //   for (const goal of goals) {
-  //     const { startedAt, finishedAt, id: goalId } = goal;
-
-  //     // 获取该目标的所有注意力记录
-  //     const attentions = await this.attentionsRepository.find({
-  //       where: { goalId },
-  //     });
-
-  //     // 计算每天的生产力分数和完成的计划数量
-  //     const currentDay = new Date(startedAt);
-  //     while (currentDay <= finishedAt) {
-  //       const dayKey = currentDay.toISOString().split('T')[0];
-
-  //       console.log(dayKey);
-
-  //       if (!dailyData.has(dayKey)) {
-  //         dailyData.set(dayKey, { score: 0, count: 0 });
-  //       }
-
-  //       const dayData = dailyData.get(dayKey);
-
-  //       // 计算当天的生产力分数
-  //       const dayAttentions = attentions.filter(
-  //         (attention) =>
-  //           format(new Date(attention.createdAt), 'yyyy-MM-dd') === dayKey,
-  //       );
-
-  //       console.log(dayAttentions);
-
-  //       const dayScore = dayAttentions.reduce(
-  //         (sum, attention) => sum + attention.productivity_score,
-  //         0,
-  //       );
-  //       dayData.score += dayScore;
-  //       dayData.count += 1; // 增加完成的计划数量
-
-  //       dailyData.set(dayKey, dayData);
-
-  //       // 移到下一天
-  //       currentDay.setDate(currentDay.getDate() + 1);
-  //     }
-  //   }
-
-  //   // 转换数据格式以适应前端需求
-  //   const contributionData = Array.from(dailyData, ([date, data]) => ({
-  //     date,
-  //     score: data.score,
-  //     count: data.count,
-  //     level: this.calculateContributionLevel(data.score / date.count),
-  //   }));
-
-  //   return contributionData;
-  // }
-
-  // 辅助方法：根据分数计算贡献等级
-
   async getContributionData(address: string, startDate: Date, endDate: Date) {
     // 确保日期范围不超过一年
     const oneYearAgo = new Date();
@@ -283,7 +219,9 @@ export class GoalsService {
     // 直接查询该日期范围内的所有 attentions
     const attentions = await this.attentionsRepository.find({
       where: {
-        address,
+        address: Raw((alias) => `LOWER(${alias}) = LOWER('${address}')`, {
+          value: address,
+        }),
         createdAt: Between(startDate, endDate),
       },
     });
