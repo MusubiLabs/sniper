@@ -4,12 +4,15 @@ import "hardhat-contract-sizer"
 import dotenv from 'dotenv';
 dotenv.config();
 const config: HardhatUserConfig = {
+  mocha: {
+    timeout: 100000000
+  },
   solidity: {
     version: "0.8.24",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 77,
+        runs: 80,
       },
     },
   },
@@ -17,7 +20,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         url: "https://opt-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb",
-        blockNumber: 17245383,
+        blockNumber: 17567604,
       },
       accounts: [
         {privateKey:process.env.PRIVATE_KEY as string,balance: "100000000000000000000000"},
