@@ -1,4 +1,4 @@
-# focus-chain-app
+# sniper-chain-app
 
 An Electron application with React and TypeScript
 
