@@ -421,15 +421,18 @@ class VoteService {
         pollId: bigint,
         voteOptionIndex: bigint
     ) {
+
         // Step 1: Get MACI keypair
         const keypair = await this.getKeyPair();
         console.log("Keypair:", keypair);
-
+        console.log(PrivKey.deserialize(keypair.privateKey))
+        console.log(PubKey.deserialize(keypair.publicKey))
+        const users = await this.walletClient.getAddresses()
         // Step 2: Query attestation list
         const res = await this.indexService.queryAttestationList({
             attester: this.sniperWorldVerifierAddress,
             page: 1,
-            indexingValue: (await this.walletClient.getAddresses()[0]).toLowerCase()
+            indexingValue: users[0].toLowerCase()
         });
 
         console.log("Attestation List:", res);
@@ -487,6 +490,7 @@ class VoteService {
         });
 
         console.log("Vote published successfully.");
+
     }
 }
 

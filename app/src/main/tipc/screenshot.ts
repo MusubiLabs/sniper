@@ -128,7 +128,7 @@ export const screenshotRoute = {
             console.error('Error in screenshot interval:', error)
           }
         },
-        input.interval ?? 1000 * 60 * 2
+        input.interval ?? 1000 * 20 // Default interval is 20 seconds
       )
 
       return { success: true }
@@ -155,6 +155,7 @@ export const screenshotRoute = {
       console.log(input)
 
       const screenshots = await takeScreenshots()
+      console.log(screenshots.image)
       const aiResult = await getUserAttention({
         address,
         goalId,

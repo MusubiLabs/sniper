@@ -1,0 +1,8 @@
+{
+  "optimism-sepolia": {
+    "Sniper": {
+      "address": "0xEAff478317Aa7425F7A60C6eE5B432a733761c80",
+      "startBlock": 17569323
+    }
+  }
+}

@@ -407,7 +407,6 @@ interface SniperZone {
   duration: bigint
   completed: boolean
   attestationId: bigint
-  mode: bigint // 0: solo, 1: party
 }
 
 interface CompletedDetails {

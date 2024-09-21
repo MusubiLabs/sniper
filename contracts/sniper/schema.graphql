@@ -1,0 +1,36 @@
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ZoneCompleted @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  zoneId: BigInt! # uint256
+  distractionScore: BigInt! # uint256
+  productivityScore: BigInt! # uint256
+  finalDuration: BigInt! # uint256
+  attestationId: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ZoneCreated @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  zoneId: BigInt! # uint256
+  zone_ipfsHash: String! # string
+  zone_startTime: BigInt! # uint256
+  zone_duration: BigInt! # uint256
+  zone_completed: Boolean! # bool
+  zone_attestationId: BigInt! # uint64
+  zone_mode: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

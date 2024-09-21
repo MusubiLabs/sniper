@@ -35,19 +35,22 @@ export default function LoginLayer({ children }: { children: ReactNode }) {
     )[0]
 
     try {
-      await worldVerifierContract?.verifyWorldAction(
+      const hash = await worldVerifierContract?.verifyWorldAction(
         BigInt(proof.merkle_root),
         BigInt(proof.nullifier_hash),
         decodeProof
       )
 
-      setIsWorldIdVerified(true)
+      console.log('world id verifier hash', hash)
+
+      await worldVerifierContract?.publicClient.waitForTransactionReceipt({ hash })
     } catch (error) {
       console.error(error)
     }
   }
 
   const onVerifySuccess = () => {
+    console.log('success')
     setIsWorldIdVerified(true)
   }
 

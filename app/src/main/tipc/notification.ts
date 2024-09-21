@@ -5,6 +5,7 @@ const t = tipc.create()
 
 export function showNotification(title, body) {
   if (Notification.isSupported()) {
+    // 提醒通知
     new Notification({
       title: title,
       body: body

@@ -15,7 +15,7 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
 
   const wallet = useConnectedWallet()
   const { toast } = useToast()
-  const { id: goalId, isStarted, goalIpfsCid, duration } = data
+  const { id: goalId, isStarted, goalIpfsCid, duration, mode } = data
 
   const { sniperContract } = useWeb3Content((state) => ({
     sniperContract: state.snipertContract
@@ -57,18 +57,19 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
 
       setIsStarting(true)
 
-      console.log(goalIpfsCid, BigInt(Date.now()), BigInt(duration * 60))
+      console.log(goalIpfsCid, BigInt(Date.now()), BigInt(duration))
+      if (mode == 0) {
+        // TODO 链上创建记录
+        const hash = await sniperContract.createSniperZone(
+          goalIpfsCid,
+          BigInt(Date.now()),
+          BigInt(duration)
+        )
 
-      // TODO 链上创建记录
-      const hash = await sniperContract.createSniperZone(
-        goalIpfsCid,
-        BigInt(Date.now()),
-        BigInt(duration * 60)
-      )
+        console.log('hash', hash)
 
-      console.log('hash', hash)
-
-      await sniperContract.publicClient.waitForTransactionReceipt({ hash })
+        await sniperContract.publicClient.waitForTransactionReceipt({ hash })
+      }
 
       startGoalMutate.mutate({
         address: wallet?.address,

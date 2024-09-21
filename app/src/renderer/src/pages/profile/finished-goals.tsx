@@ -32,7 +32,7 @@ export default function FinishedGoals() {
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="h-5 w-5 text-blue-500" />
-                <span>Duration: {goal?.result?.duration} minutes</span>
+                <span>Duration: {Math.floor(goal?.result?.duration / 60)} minutes {Math.floor(goal?.result?.duration % 60)} seconds </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Zap className="h-5 w-5 text-yellow-500" />

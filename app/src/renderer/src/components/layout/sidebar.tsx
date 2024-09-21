@@ -1,12 +1,10 @@
-import { useIsLoggedIn } from '@dynamic-labs/sdk-react-core'
-import { HomeIcon, UserIcon } from 'lucide-react'
+import { HomeIcon, PartyPopper, UserIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 export default function SideBar() {
   const location = useLocation()
   const [activeItem, setActiveItem] = useState(location.pathname)
-  const isLoggedIn = useIsLoggedIn()
 
   useEffect(() => {
     setActiveItem(location.pathname)
@@ -14,13 +12,14 @@ export default function SideBar() {
 
   const menuItems = [
     { icon: HomeIcon, label: 'Home', path: '/' },
+    { icon: PartyPopper, label: 'Party', path: '/party' },
     { icon: UserIcon, label: 'Profile', path: '/profile' }
   ]
 
   return (
     <aside className="flex flex-col h-screen w-64 bg-gray-100 text-gray-800 p-4 shadow-lg">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold">Sniper Chain</h1>
+        <h1 className="text-2xl font-bold">Sniper</h1>
       </div>
       <nav className="flex-1">
         <ul className="space-y-2">

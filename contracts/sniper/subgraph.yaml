@@ -1,0 +1,32 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Sniper
+    network: optimism-sepolia
+    source:
+      address: "0xEAff478317Aa7425F7A60C6eE5B432a733761c80"
+      abi: Sniper
+      startBlock: 17569323
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - ZoneCompleted
+        - ZoneCreated
+      abis:
+        - name: Sniper
+          file: ./abis/Sniper.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ZoneCompleted(indexed address,uint256,uint256,uint256,uint256,uint64)
+          handler: handleZoneCompleted
+        - event: ZoneCreated(indexed address,uint256,(string,uint256,uint256,bool,uint64,uint8))
+          handler: handleZoneCreated
+      file: ./src/sniper.ts
