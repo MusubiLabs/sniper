@@ -5,15 +5,13 @@ import {
     DataLocationOnChain,
 } from '@ethsign/sp-sdk';
 import { privateKeyToAccount } from "viem/accounts";
-
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const client = new SignProtocolClient(SpMode.OnChain, {
+    chain: EvmChains.optimismSepolia,
+    account: account, // optional
+});
 
 export const createWorldVerifierSchema = async () => {
-    const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
-    const client = new SignProtocolClient(SpMode.OnChain, {
-        chain: EvmChains.optimismSepolia,
-        account: account, // optional
-    });
-
     const verifySchema = await client.createSchema({
         name: "sniperWorldIDVerify",
         registrant: account.address,
@@ -29,12 +27,6 @@ export const createWorldVerifierSchema = async () => {
 }
 
 export const createCompleteSchema = async (hookAddress: `0x${string}`) => {
-    const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
-    const client = new SignProtocolClient(SpMode.OnChain, {
-        chain: EvmChains.optimismSepolia,
-        account: account, // optional
-    });
-
     const completeSchema = await client.createSchema({
         name: "zoneCompleted",
         registrant: account.address,

@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox-viem";
 import "hardhat-contract-sizer"
 import dotenv from 'dotenv';
 dotenv.config();
+
 const config: HardhatUserConfig = {
   mocha: {
     timeout: 100000000

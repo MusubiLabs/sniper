@@ -44,6 +44,7 @@ async function main() {
         let worldSchema
         if (!process.env.WORLD_VERIFIER_SCHEMA) {
             worldSchema = await createWorldVerifierSchema()
+            console.log(`worldSchema: ${worldSchema.schemaId}`)
         }
         worldVerifier = await hre.ignition.deploy(worldVerifierModule, {
             parameters: {
@@ -74,18 +75,27 @@ async function main() {
     });
 
     console.log(`Sniper deployed to: ${await sniper.address}`);
-    const { sniperMACIFactory } = await hre.ignition.deploy(sniperMACIFactoryModule, {});
-    const { sniperSPGatekeeper } = await hre.ignition.deploy(sniperSPGatekeeperModule, {
-        parameters: {
-            SniperSPGatekeeper: {
-                spAddress: process.env.SIGN_PROTOCOL_ADDRESS as string,
-                worldVerifierAddress: worldVerifier.address,
-                worldVerifierSchemaID: process.env.WORLD_VERIFIER_SCHEMA as string,
-                maciFactoryAddress: sniperMACIFactory.address
+    
+    const sniperMACIFactory = process.env.SNIPER_MACI_FACTORY_ADDRESS ?
+        await hre.viem.getContractAt(
+            "SniperMACIFactory",
+            process.env.SNIPER_MACI_FACTORY_ADDRESS as `0x${string}`) :
+        (await hre.ignition.deploy(sniperMACIFactoryModule, {})).sniperMACIFactory;
+    const sniperSPGatekeeper = process.env.SNIPER_SP_GATEKEEPER_ADDRESS ?
+        await hre.viem.getContractAt(
+            "SniperSPGatekeeper",
+            process.env.SNIPER_SP_GATEKEEPER_ADDRESS as `0x${string}`) :
+        (await hre.ignition.deploy(sniperSPGatekeeperModule, {
+            parameters: {
+                SniperSPGatekeeper: {
+                    spAddress: process.env.SIGN_PROTOCOL_ADDRESS as string,
+                    worldVerifierAddress: worldVerifier.address,
+                    worldVerifierSchemaID: process.env.WORLD_VERIFIER_SCHEMA as string,
+                    maciFactoryAddress: sniperMACIFactory.address
+                },
             },
-        },
-    });
-    console.log(`SniperSPGatekeeper deployed to: ${await sniperSPGatekeeper.address}`);
+        })).sniperSPGatekeeper;
+    console.log(`SniperSPGatekeeper deployed to: ${sniperSPGatekeeper.address}`);
 
     const { sniperPartyManager } = await hre.ignition.deploy(sniperPartyManagerModule, {
         parameters: {
