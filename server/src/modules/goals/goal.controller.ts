@@ -5,7 +5,7 @@ import { GoalsService } from './goal.service';
 
 @Controller('goals')
 export class GoalsController {
-  constructor(private readonly goalsService: GoalsService) {}
+  constructor(private readonly goalsService: GoalsService) { }
 
   @Get()
   getAll(): Promise<Goal[]> {
@@ -29,7 +29,7 @@ export class GoalsController {
       address: string;
       goalId: string;
       startedAt: Date;
-      sessionId: string;
+      zoneId: string;
     },
   ): Promise<Goal> {
     return this.goalsService.start(body);
@@ -51,11 +51,14 @@ export class GoalsController {
 
   @Post('finish')
   async finish(
-    @Body() body: { goalId: string; sessionId: string },
+    @Body() body: { user: string; goalId: string; zoneId: string },
   ): Promise<any> {
     console.log(body);
 
-    return await this.goalsService.finishGoal(body.goalId, body.sessionId);
+    return await this.goalsService.finishGoal(
+      body.user,
+      body.goalId,
+      body.zoneId);
   }
 
   @Post('finshed-goals')

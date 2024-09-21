@@ -65,7 +65,7 @@ export default async function judgeAttention({
 
   return {
     observations: functionCallResult?.observations || [],
-    distracted: functionCallResult?.productivity_score > 6,
+    distracted: functionCallResult?.productivity_score > 5,
     productivity_score: functionCallResult?.productivity_score,
     assessment: functionCallResult?.assessment,
     feedback: functionCallResult?.feedback,

@@ -8,7 +8,11 @@ interface CompletedDetails {
   ipfsHash: string;
 }
 
-export default async function sniperContractCall(parameters: any) {
+export default async function sniperContractCall(
+  userId: string,
+  zoneId: number,
+  details: any
+) {
   const provider = new ethers.JsonRpcProvider('https://sepolia.optimism.io');
   const privateKey = process.env.PRIVATE_KEY;
   const contractAddress = process.env.FOCUS_CONTRACT_ADRESS;
@@ -17,7 +21,7 @@ export default async function sniperContractCall(parameters: any) {
   const contract = new ethers.Contract(contractAddress, abi, wallet);
 
   try {
-    const tx = await contract.completeSession(parameters);
+    const tx = await contract.completeSession(userId, zoneId, details);
     console.log('Transaction hash:', tx.hash);
 
     const receipt = await tx.wait();

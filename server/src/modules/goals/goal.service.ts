@@ -140,17 +140,17 @@ export class GoalsService {
     };
   }
 
-  async finishGoal(goalId: string, sessionId: string) {
+  async finishGoal(user: string, goalId: string, zoneId: string) {
     const goal = await this.goalRepository.findOne({ where: { id: goalId } });
 
-    console.log(sessionId);
+    console.log(zoneId);
 
-    if (!sessionId) {
+    if (!zoneId) {
       throw new Error('Session id not found');
     }
 
-    if (!goal) {
-      throw new Error('Goal not found');
+    if (!zoneId || !user) {
+      throw new Error('Session id or user id not found');
     }
 
     // 未开始或者已经结束，则直接报错
@@ -185,32 +185,24 @@ export class GoalsService {
       });
       console.log('ifpsResult', ipfsResult);
 
-      console.log([
-        goal.address,
-        Number(sessionId),
-        [
-          calculation.distractionCount || 1,
-          (calculation.averageProductivityScore || 1) as any,
-          calculation.duration,
-          ipfsResult.IpfsHash,
-        ],
-      ]);
+      console.log(user, '\n', Number(zoneId), '\n', {
+        distractionScore: calculation.distractionCount || 2,
+        productivityScore: calculation.averageProductivityScore || 2,
+        finalDuration: calculation.duration,
+        ipfsHash: ipfsResult.IpfsHash,
+      });
 
       // 获取用户的总结
-      await sniperContractCall([
-        goal.address,
-        Number(sessionId),
-        [
-          calculation.distractionCount || 1,
-          calculation.averageProductivityScore || 1,
-          calculation.duration,
-          ipfsResult.IpfsHash,
-        ],
-      ] as any);
+      await sniperContractCall(user, Number(zoneId), {
+        distractionScore: calculation.distractionCount || 1,
+        productivityScore: (calculation.averageProductivityScore || 2) * 1000,
+        finalDuration: calculation.duration,
+        ipfsHash: ipfsResult.IpfsHash,
+      } as any);
 
       return this.goalRepository.save({
         ...goal,
-        sessionId,
+        zoneId,
         isFinished: true,
         finishedAt: new Date(),
       });
