@@ -1,8 +1,8 @@
 import hre, { viem } from "hardhat";
-import sniperModule from "../ignition/modules/Sniper";
-import worldVerifierModule from "../ignition/modules/WorldVerifier";
-import sniperCoinModule from "../ignition/modules/sniperCoin";
-import sphookModule from "../ignition/modules/SniperSPHook"; import {
+import sniperModule from "../ignition/modules/sniper";
+import worldVerifierModule from "../ignition/modules/worldVerifier";
+import sniperPointModule from "../ignition/modules/sniperPoint";
+import sphookModule from "../ignition/modules/sphook"; import {
     SignProtocolClient,
     SpMode,
     EvmChains,
@@ -13,8 +13,7 @@ import { privateKeyToAccount } from "viem/accounts";
 async function main() {
     const [deployer] = await hre.viem.getWalletClients();
     console.log('deployer: ', deployer.account.address);
-
-    let spHook, completeSchema;
+    let spHook, completeSchema, sniperPoint;
     if (process.env.ZONE_COMPLETE_SCHEMA === undefined) {
         const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
         const client = new SignProtocolClient(SpMode.OnChain, {
@@ -40,16 +39,21 @@ async function main() {
         })
         console.log('completeSchema:', completeSchema.schemaId);
         console.log(`spHook deployed to: ${await spHook.address}`);
-   
+
     }
-    const { sniperCoin } = await hre.ignition.deploy(sniperCoinModule, {
-        parameters: {
-            SniperCoin: {
-                signProtocolHookAddress: spHook? spHook.address : process.env.SIGN_PROTOCOL_HOOK_ADDRESS as string,
+    if (process.env.SNIPER_POINT_ADDRESS) {
+        sniperPoint = { address: process.env.SNIPER_POINT_ADDRESS }
+    } else {
+        sniperPoint = await hre.ignition.deploy(sniperPointModule, {
+            parameters: {
+                SniperPoint: {
+                    signProtocolHookAddress: spHook ? spHook.address : process.env.SIGN_PROTOCOL_HOOK_ADDRESS as string,
+                },
             },
-        },
-    });
-    console.log(`sniperCoin deployed to: ${await sniperCoin.address}`);
+        });
+        sniperPoint = sniperPoint.sniperPoint;
+        console.log(`sniperPoint deployed to: ${await sniperPoint.address}`);
+    }
     const { worldVerifier } = await hre.ignition.deploy(worldVerifierModule, {
         parameters: {
             WorldVerifier: {
@@ -65,10 +69,10 @@ async function main() {
     const { sniper } = await hre.ignition.deploy(sniperModule, {
         parameters: {
             Sniper: {
-                zoneCompleteSchema: process.env.ZONE_COMPLETE_SCHEMA? process.env.ZONE_COMPLETE_SCHEMA as string: completeSchema?.schemaId as string,
+                zoneCompleteSchema: process.env.ZONE_COMPLETE_SCHEMA ? process.env.ZONE_COMPLETE_SCHEMA as string : completeSchema?.schemaId as string,
                 worldVerifierAddress: worldVerifier.address,
                 spAddress: process.env.SIGN_PROTOCOL_ADDRESS as string,
-                sniperCoinAddress: sniperCoin.address,
+                sniperPointAddress: sniperPoint.address,
             },
         },
     });
