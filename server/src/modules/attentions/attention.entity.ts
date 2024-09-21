@@ -7,7 +7,7 @@ export class Attention extends BaseEntity {
   address: string;
 
   @Column({ comment: '用户创建的todo的地址', nullable: true })
-  sessionId: string;
+  zoneId: string;
 
   @Column({ comment: 'goals的id' })
   goalId: string;

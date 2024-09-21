@@ -3,27 +3,23 @@ import { Button } from '@renderer/components/ui/button'
 import { useToast } from '@renderer/hooks/use-toast'
 import { useConnectedWallet } from '@renderer/hooks/useConnectedWallet'
 import { client } from '@renderer/lib/client'
-import { SniperContract } from '@renderer/lib/sniper'
 import { fetchStartGoal, GoalsQueryEnum } from '@renderer/services'
+import { useWeb3Content } from '@renderer/stores/web3-content'
 import { useMutation } from '@tanstack/react-query'
 import { Loader2, PlayIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import FinishGoal from './finish-goal'
 
-export default function StartGoal({
-  data,
-  refetch,
-  sniperContract
-}: {
-  data: any
-  refetch: () => void
-  sniperContract: SniperContract | null
-}) {
+export default function StartGoal({ data, refetch }: { data: any; refetch: () => void }) {
   const [isStarting, setIsStarting] = useState(false)
 
   const wallet = useConnectedWallet()
   const { toast } = useToast()
   const { id: goalId, isStarted, goalIpfsCid, duration } = data
+
+  const { sniperContract } = useWeb3Content((state) => ({
+    sniperContract: state.snipertContract
+  }))
 
   useEffect(() => {
     window.electron.ipcRenderer.on('screenshot-taken', (event, screenshot) => {
@@ -62,22 +58,27 @@ export default function StartGoal({
       setIsStarting(true)
 
       // TODO 链上创建记录
-      // const session = await sniperContract.createSniperSession(
-      //   goalIpfsCid,
-      //   BigInt(Date.now()),
-      //   BigInt(duration * 60 * 1000)
-      // )
+      const zone = await sniperContract.createFocusSession(
+        goalIpfsCid,
+        BigInt(Date.now()),
+        BigInt(duration * 60 * 1000)
+      )
 
-      // console.log('session', session)
+      console.log('zone', zone)
 
       await startGoalMutate.mutateAsync({
         address: wallet?.address,
         goalId: goalId,
-        sessionId: '123123131313131231',
+        zoneId: zone,
         startedAt: startDate.toString()
       })
     } catch {
+      toast({
+        title: 'Something is wrong. Please try again.',
+        variant: 'destructive'
+      })
     } finally {
+      setIsStarting(false)
     }
   }
 

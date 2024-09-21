@@ -10,7 +10,7 @@ export class PartyUserJoined extends BaseEntity {
   partyId: string;
 
   @Column({ comment: '会话ID', nullable: true })
-  sessionId: string;
+  zoneId: string;
 
   @Column({ comment: 'Goal存储在ipfs上面的hash', nullable: true })
   goalIpfsCid: string;

@@ -47,10 +47,14 @@ const ContributionGraph: React.FC = () => {
 
   console.log(formattedData)
 
+  if (!formattedData || !formattedData.length) {
+    return null
+  }
+
   return (
     <div className="w-full p-8 pb-0">
       <ActivityCalendar
-        data={formattedData}
+        data={formattedData || []}
         style={{
           width: '100%'
         }}

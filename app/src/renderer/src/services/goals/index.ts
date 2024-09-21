@@ -31,7 +31,7 @@ export function createGoal(data: {
 export function fetchStartGoal(data: {
   address: string
   goalId: string
-  sessionId: string
+  zoneId: string
   startedAt: string
 }) {
   return request('/api/goals/start', {

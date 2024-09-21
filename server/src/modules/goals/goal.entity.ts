@@ -7,7 +7,7 @@ export class Goal extends BaseEntity {
   address: string;
 
   @Column({ comment: '会话ID', nullable: true })
-  sessionId: string;
+  zoneId: string;
 
   @Column({
     comment: '类型 solo | party',

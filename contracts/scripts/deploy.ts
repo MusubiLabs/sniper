@@ -65,7 +65,7 @@ async function main() {
     const { sniper } = await hre.ignition.deploy(sniperModule, {
         parameters: {
             Sniper: {
-                sessionCompleteSchema: process.env.ZONE_COMPLETE_SCHEMA ? process.env.ZONE_COMPLETE_SCHEMA as string : completeSchema?.schemaId as string,
+                zoneCompleteSchema: process.env.ZONE_COMPLETE_SCHEMA ? process.env.ZONE_COMPLETE_SCHEMA as string : completeSchema?.schemaId as string,
                 worldVerifierAddress: worldVerifier.address,
                 spAddress: process.env.SIGN_PROTOCOL_ADDRESS as string,
                 sniperCoinAddress: sniperCoin.address,

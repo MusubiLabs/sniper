@@ -552,12 +552,12 @@ class SniperContract {
 
   async completeSession(
     user: string,
-    sessionId: bigint,
+    zoneId: bigint,
     details: CompletedDetails
   ): Promise<any> {
     return this.contractInstance.write.completeSession([
       user,
-      sessionId,
+      zoneId,
       details,
     ]);
   }
@@ -578,8 +578,8 @@ class SniperContract {
     return this.contractInstance.read.signProtocol();
   }
 
-  async getUserSession(user: string, sessionId: bigint): Promise<SniperSession> {
-    return this.contractInstance.read.userSessions([user, sessionId]);
+  async getUserSession(user: string, zoneId: bigint): Promise<SniperSession> {
+    return this.contractInstance.read.userSessions([user, zoneId]);
   }
 }
 

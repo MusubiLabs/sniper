@@ -20,41 +20,31 @@ import { Input } from '@renderer/components/ui/input'
 import { Textarea } from '@renderer/components/ui/textarea'
 import { useToast } from '@renderer/hooks/use-toast'
 import { useConnectedWallet } from '@renderer/hooks/useConnectedWallet'
-import { SniperContract } from '@renderer/lib/sniper'
 import { pinata } from '@renderer/lib/pinataClient'
 import { createGoal, getUnfinishedGoals, GoalsQueryEnum } from '@renderer/services'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { PlusIcon } from 'lucide-react'
+import { Loader2, PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import StartGoal from './start-goal'
 
-interface Todo {
-  id: number
-  title: string
-  description: string
-  duration: number
-  isStarted: boolean
-  isCompleted: boolean
-}
-
 // 定义表单模式
 const formSchema = z.object({
-  name: z.string().min(1, '标题不能为空'),
+  name: z.string().min(1, 'Title cannot be empty'),
   description: z.string().optional(),
-  duration: z.number().min(1, '时长必须大于0')
+  duration: z.number().min(1, 'The duration must be greater than 0')
 })
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function TODO({ sniperContract }: { sniperContract: SniperContract | null }) {
+export default function TODO() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const wallet = useConnectedWallet()
   const { toast } = useToast()
 
   const form = useForm<FormValues>({
-    // @rendererts-ignore
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
@@ -87,12 +77,13 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
     },
     onSettled() {
       setIsDialogOpen(false)
+      setIsLoading(false)
       form.reset()
     }
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('start upload', values)
+    setIsLoading(true)
 
     const ipfsResult = await pinata.upload.json({
       name: values.name,
@@ -101,6 +92,8 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
     })
 
     if (!ipfsResult.cid) {
+      setIsLoading(false)
+
       toast({
         title: 'Upload Failed',
         description: 'IPFS upload failed',
@@ -130,7 +123,7 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>添加新任务</DialogTitle>
+            <DialogTitle>Add new Goal</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
@@ -139,9 +132,9 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>标题</FormLabel>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="输入任务标题" {...field} />
+                      <Input placeholder="Please enter title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -152,9 +145,9 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>描述</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="输入任务描述" {...field} />
+                      <Textarea placeholder="Please enter description" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -165,7 +158,7 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>预计用时（分钟）</FormLabel>
+                    <FormLabel>Estimated usage duration</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -178,8 +171,15 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={createGoalMutate.isPending}>
-                添加任务
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    loading ...
+                  </>
+                ) : (
+                  'Add goal'
+                )}
               </Button>
             </form>
           </Form>
@@ -197,7 +197,7 @@ export default function TODO({ sniperContract }: { sniperContract: SniperContrac
                   <p className="text-sm">Estimated time: {todo.duration} minutes</p>
                 </div>
                 <div className="space-y-2 self-center">
-                  <StartGoal sniperContract={sniperContract} refetch={refetch} data={todo} />
+                  <StartGoal refetch={refetch} data={todo} />
                 </div>
               </div>
             </CardContent>
