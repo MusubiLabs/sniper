@@ -8,7 +8,7 @@ interface ISniper {
     function createPartySniperZone(
         uint256 duration,
         uint256 startTime,
-        bytes32 ipfsHash,
+        string memory ipfsHash,
         address user
-    ) external returns (uint256 sessionId);
+    ) external returns (uint256 zoneId);
 }

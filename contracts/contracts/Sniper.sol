@@ -44,12 +44,12 @@ contract Sniper is Ownable(msg.sender) {
 
     event ZoneCreated(
         address indexed user,
-        uint256 sessionId,
-        SniperZone session
+        uint256 zoneId,
+        SniperZone zone
     );
     event ZoneCompleted(
         address indexed user,
-        uint256 sessionId,
+        uint256 zoneId,
         uint256 distractionScore,
         uint256 productivityScore,
         uint256 finalDuration,
@@ -88,7 +88,7 @@ contract Sniper is Ownable(msg.sender) {
         uint256 duration,
         uint256 startTime,
         string memory ipfsHash
-    ) external onlyVerifiedUser returns (uint256 sessionId) {
+    ) external onlyVerifiedUser returns (uint256 zoneId) {
         SniperZone memory newZone = SniperZone({
             ipfsHash: ipfsHash,
             startTime: startTime,
@@ -99,9 +99,9 @@ contract Sniper is Ownable(msg.sender) {
         });
 
         userZones[msg.sender].push(newZone);
-        sessionId = userZones[msg.sender].length - 1;
+        zoneId = userZones[msg.sender].length - 1;
 
-        emit ZoneCreated(msg.sender, sessionId, newZone);
+        emit ZoneCreated(msg.sender, zoneId, newZone);
     }
 
     function createPartySniperZone(
@@ -109,7 +109,7 @@ contract Sniper is Ownable(msg.sender) {
         uint256 startTime,
         string memory ipfsHash,
         address user
-    ) external onlyPartyManager returns (uint256 sessionId) {
+    ) external onlyPartyManager returns (uint256 zoneId) {
         SniperZone memory newZone = SniperZone({
             ipfsHash: ipfsHash,
             startTime: startTime,
@@ -120,18 +120,18 @@ contract Sniper is Ownable(msg.sender) {
         });
 
         userZones[user].push(newZone);
-        sessionId = userZones[user].length - 1;
+        zoneId = userZones[user].length - 1;
 
-        emit ZoneCreated(user, sessionId, newZone);
+        emit ZoneCreated(user, zoneId, newZone);
     }
 
     function completeZone(
         address user,
-        uint256 sessionId,
+        uint256 zoneId,
         CompletedDetails calldata details
     ) external onlyOwner {
-        SniperZone storage session = userZones[user][sessionId];
-        if (session.completed) {
+        SniperZone storage zone = userZones[user][zoneId];
+        if (zone.completed) {
             revert ZoneAlreadyFinalized();
         }
 
@@ -146,7 +146,7 @@ contract Sniper is Ownable(msg.sender) {
             revoked: false,
             recipients: new bytes[](1),
             data: abi.encode(
-                sessionId,
+                zoneId,
                 details.productivityScore,
                 details.distractionScore,
                 details.finalDuration,
@@ -154,27 +154,27 @@ contract Sniper is Ownable(msg.sender) {
             )
         });
         attestation.recipients[0] = (abi.encodePacked(user));
-        session.attestationId = signProtocol.attest(
+        zone.attestationId = signProtocol.attest(
             attestation,
             rewardToken,
             calculateReward(
                 details.distractionScore,
                 details.productivityScore,
                 details.finalDuration,
-                session.duration
+                zone.duration
             ),
             "",
             "",
             abi.encode(user)
         );
-        session.completed = true;
+        zone.completed = true;
         emit ZoneCompleted(
             user,
-            sessionId,
+            zoneId,
             details.distractionScore,
             details.productivityScore,
             details.finalDuration,
-            session.attestationId
+            zone.attestationId
         );
     }
 
