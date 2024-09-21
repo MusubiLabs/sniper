@@ -18,10 +18,17 @@ export class PartyService {
   async findAll() {
     return this.partyRepository.find();
   }
-  
+
   async finishParty(partyId: string) {
     return {
       data: 'finish party',
     };
   }
+  
+  async getVoteResult(partyId: string) {
+    return {
+      data: 'get vote result',
+    };
+  }
+  
 }
