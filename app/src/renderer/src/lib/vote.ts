@@ -200,58 +200,59 @@ class VoteService {
      */
     private async parseSignupEvents(maciContract: GetContractReturnType, startBlock, currentBlock, publicKey: PubKey) {
         // 1000 blocks at a time
+        for (let block = startBlock; block <= currentBlock; block += 1000) {
+            const toBlock = Math.min(block + 999, currentBlock);
+            // eslint-disable-next-line no-await-in-loop
+            const newEvents = await this.publicClient.getLogs({
+                address: maciContract.address,
+                event: {
+                    name: "SignUp",
+                    type: "event",
+                    inputs: [
+                        {
+                            "indexed": false,
+                            "name": "_stateIndex",
+                            type: "uint256"
+                        },
+                        {
+                            "indexed": true,
+                            "name": "_userPubKeyX",
+                            type: "uint256"
+                        },
+                        {
+                            "indexed": true,
+                            "name": "_userPubKeyY",
+                            type: "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "name": "_voiceCreditBalance",
+                            type: "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "name": "_timestamp",
+                            type: "uint256"
+                        }
+                    ],
+                },
+                args: {
+                    _userPubKeyX: BigInt(publicKey.asContractParam().x),
+                    _userPubKeyY: BigInt(publicKey.asContractParam().y),
+                },
+                fromBlock: startBlock,
+                toBlock: BigInt(toBlock)
+            })
 
-        // eslint-disable-next-line no-await-in-loop
-        const newEvents = await this.publicClient.getLogs({
-            address: maciContract.address,
-            event: {
-                name: "SignUp",
-                type: "event",
-                inputs: [
-                    {
-                        "indexed": false,
-                        "name": "_stateIndex",
-                        type: "uint256"
-                    },
-                    {
-                        "indexed": true,
-                        "name": "_userPubKeyX",
-                        type: "uint256"
-                    },
-                    {
-                        "indexed": true,
-                        "name": "_userPubKeyY",
-                        type: "uint256"
-                    },
-                    {
-                        "indexed": false,
-                        "name": "_voiceCreditBalance",
-                        type: "uint256"
-                    },
-                    {
-                        "indexed": false,
-                        "name": "_timestamp",
-                        type: "uint256"
-                    }
-                ],
-            },
-            args: {
-                _userPubKeyX: BigInt(publicKey.asContractParam().x),
-                _userPubKeyY: BigInt(publicKey.asContractParam().y),
-            },
-            fromBlock: BigInt(startBlock),
-            toBlock: BigInt(currentBlock)
-        })
+            if (newEvents.length > 0) {
+                const [event] = newEvents;
 
-        if (newEvents.length > 0) {
-            const [event] = newEvents;
-
-            return {
-                stateIndex: event.args._stateIndex?.toString(),
-                voiceCredits: event.args._voiceCreditBalance?.toString(),
-            };
+                return {
+                    stateIndex: event.args._stateIndex?.toString(),
+                    voiceCredits: event.args._voiceCreditBalance?.toString(),
+                };
+            }
         }
-
 
         return {
             stateIndex: undefined,
@@ -279,7 +280,7 @@ class VoteService {
         const { stateIndex, voiceCredits } = await this.parseSignupEvents(
             maciContract,
             startBlockNumber,
-            Number(currentBlock),
+            currentBlock,
             publicKey,
         );
 
@@ -361,7 +362,7 @@ class VoteService {
 
         const treeDepths = await pollContract.read.treeDepths() as any;
         const coordinatorPubKeyResult = await pollContract.read.coordinatorPubKey() as any;
-        const maxVoteOptions = this.MESSAGE_TREE_ARITY ** Number(treeDepths.voteOptionTreeDepth);
+        const maxVoteOptions = Number(BigInt(this.MESSAGE_TREE_ARITY) ** treeDepths.voteOptionTreeDepth);
 
         // validate the vote options index against the max leaf index on-chain
         if (maxVoteOptions < voteOptionIndex) {
@@ -369,8 +370,8 @@ class VoteService {
         }
 
         const coordinatorPubKey = new PubKey([
-            BigInt(coordinatorPubKeyResult[0]),
-            BigInt(coordinatorPubKeyResult[1]),
+            BigInt(coordinatorPubKeyResult.x.toString()),
+            BigInt(coordinatorPubKeyResult.y.toString()),
         ]);
 
         const encKeypair = new Keypair();
@@ -420,79 +421,75 @@ class VoteService {
         pollId: bigint,
         voteOptionIndex: bigint
     ) {
-        try {
-            // Step 1: Get MACI keypair
-            const keypair = await this.getKeyPair();
-            console.log("Keypair:", keypair);
-            console.log(PrivKey.deserialize(keypair.privateKey))
-            console.log(PubKey.deserialize(keypair.publicKey))
-            const users = await this.walletClient.getAddresses()
-            // Step 2: Query attestation list
-            const res = await this.indexService.queryAttestationList({
-                attester: this.sniperWorldVerifierAddress,
-                page: 1,
-                indexingValue: users[0].toLowerCase()
-            });
 
-            console.log(1)
-            console.log("Attestation List:", res);
+        // Step 1: Get MACI keypair
+        const keypair = await this.getKeyPair();
+        console.log("Keypair:", keypair);
+        console.log(PrivKey.deserialize(keypair.privateKey))
+        console.log(PubKey.deserialize(keypair.publicKey))
+        const users = await this.walletClient.getAddresses()
+        // Step 2: Query attestation list
+        const res = await this.indexService.queryAttestationList({
+            attester: this.sniperWorldVerifierAddress,
+            page: 1,
+            indexingValue: users[0].toLowerCase()
+        });
 
-            // Step 3: Get the attestation ID
-            const ownerVerifyAttestationId = BigInt(res?.rows[0].attestationId as string);
-            console.log(1)
-            // Step 4: Check if the user is registered
-            const registeredUser = await this.isRegisteredUser(
+        console.log("Attestation List:", res);
+
+        // Step 3: Get the attestation ID
+        const ownerVerifyAttestationId = BigInt(res?.rows[0].attestationId as string);
+
+        // Step 4: Check if the user is registered
+        const registeredUser = await this.isRegisteredUser(
+            maciAddress,
+            keypair.publicKey,
+            partyStartBlock
+        );
+
+        console.log("Registered User:", registeredUser);
+
+        let stateIndex: bigint;
+        let voiceCredits: number;
+
+        if (!registeredUser.isRegistered) {
+            // If the user is not registered, sign them up
+            const signUpData = await this.signup(
                 maciAddress,
                 keypair.publicKey,
-                partyStartBlock
+                encodeAbiParameters(
+                    [
+                        { name: 'attestationId', type: 'uint64' },
+                        { name: 'partyId', type: 'uint256' }
+                    ],
+                    [ownerVerifyAttestationId, partyId]
+                ),
+                '0x'
             );
-            console.log(1)
-            console.log("Registered User:", registeredUser);
 
-            let stateIndex: bigint;
-            let voiceCredits: number;
+            stateIndex = BigInt(signUpData.stateIndex as string);
+            voiceCredits = Number(signUpData.voiceCredits);
 
-            if (!registeredUser.isRegistered) {
-                // If the user is not registered, sign them up
-                const signUpData = await this.signup(
-                    keypair.publicKey,
-                    maciAddress,
-                    encodeAbiParameters(
-                        [
-                            { name: 'attestationId', type: 'uint64' },
-                            { name: 'partyId', type: 'uint256' }
-                        ],
-                        [ownerVerifyAttestationId, partyId]
-                    ),
-                    '0x'
-                );
-                console.log(2)
-                stateIndex = BigInt(signUpData.stateIndex as string);
-                voiceCredits = Number(signUpData.voiceCredits);
-
-            } else {
-                // If already registered, get the state index and voice credits
-                stateIndex = BigInt(registeredUser.stateIndex as string);
-                voiceCredits = Number(registeredUser.voiceCredits as string);
-            }
-            console.log(1)
-            // Step 5: Publish the vote
-            await this.publish({
-                pubkey: keypair.publicKey,
-                stateIndex: stateIndex,
-                voteOptionIndex: voteOptionIndex,
-                nonce: 1n,
-                pollId: pollId,
-                newVoteWeight: BigInt(Math.floor(Math.sqrt(voiceCredits))),
-                maciAddress: maciAddress,
-                salt: genRandomSalt(),
-                privateKey: keypair.privateKey
-            });
-            console.log(1)
-            console.log("Vote published successfully.");
-        } catch (e) {
-            console.log(e)
+        } else {
+            // If already registered, get the state index and voice credits
+            stateIndex = BigInt(registeredUser.stateIndex as string);
+            voiceCredits = Number(registeredUser.voiceCredits as string);
         }
+
+        // Step 5: Publish the vote
+        await this.publish({
+            pubkey: keypair.publicKey,
+            stateIndex: stateIndex,
+            voteOptionIndex: voteOptionIndex,
+            nonce: 1n,
+            pollId: pollId,
+            newVoteWeight: BigInt(Math.floor(Math.sqrt(voiceCredits))),
+            maciAddress: maciAddress,
+            salt: genRandomSalt(),
+            privateKey: keypair.privateKey
+        });
+
+        console.log("Vote published successfully.");
 
     }
 }

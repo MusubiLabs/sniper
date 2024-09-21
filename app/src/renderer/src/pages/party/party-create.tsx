@@ -48,10 +48,10 @@ export default function PartyCreate() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      partyDuration: 0,
-      voteDuration: 0
+      name: 'Coding for 40 minutes and deploy the MVP on the blockchain testnet',
+      description: 'Allow me to use IDEs to code and Notion to do documentation, and conduct research through browser activities(Claude3 ChatGPT). However, restrict access to unrelated videos or Twitter.',
+      partyDuration: 5,
+      voteDuration: 5
     }
   })
 
@@ -141,7 +141,7 @@ export default function PartyCreate() {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Please enter title" {...field} />
+                      <Input defaultValue='Coding for 40 minutes and deploy the MVP on the blockchain testnet' placeholder="Please enter title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,7 +154,7 @@ export default function PartyCreate() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Please enter description" {...field} />
+                      <Textarea defaultValue='Allow me to use IDEs to code and Notion to do documentation, and conduct research through browser activities(Claude3 ChatGPT). However, restrict access to unrelated videos or Twitter.' placeholder="Please enter description" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -189,6 +189,7 @@ export default function PartyCreate() {
                         type="number"
                         min="1"
                         {...field}
+                        defaultValue={5}
                         onChange={(e) => field.onChange(parseInt(e.target.value))}
                       />
                     </FormControl>

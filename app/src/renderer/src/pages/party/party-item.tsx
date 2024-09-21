@@ -1,4 +1,3 @@
-import { TimeTracker } from '@renderer/components/time-traker'
 import { Button } from '@renderer/components/ui/button'
 import {
   Card,
@@ -41,12 +40,17 @@ export default function PartyItem(props: { data: any, }) {
     mutationKey: ['sponsor'],
     mutationFn: async () => {
       const sponsorAmountWithDecimal = BigInt(sponsorAmount * 10 ** 6)
-      const partyId = data?.onChainData?.partyId
+      const partyId = data?.partyData?.partyId
       console.log(partyId, usdcContract, sponsorAmountWithDecimal)
-      const allowance = await usdcContract?.getAllowance(import.meta.env.VITE_SNIPER_PARTY_MANAGER)
+      const allowance = (await usdcContract?.getAllowance(
+        import.meta.env.VITE_SNIPER_PARTY_MANAGER
+      )) as bigint
       console.log('allowance', allowance)
       if (allowance < sponsorAmountWithDecimal) {
-        const approveTx = await usdcContract?.approve(import.meta.env.VITE_SNIPER_PARTY_MANAGER, sponsorAmountWithDecimal)
+        const approveTx = await usdcContract?.approve(
+          import.meta.env.VITE_SNIPER_PARTY_MANAGER,
+          sponsorAmountWithDecimal
+        )
         console.log(approveTx)
       }
       const hash = await sniperPartyManager?.sponsorParty(BigInt(partyId), sponsorAmountWithDecimal)
@@ -93,7 +97,7 @@ export default function PartyItem(props: { data: any, }) {
 
       console.log(hash)
 
-      const re = await sniperPartyManager?.publicClient?.waitForTransactionReceipt({ hash })
+      const re = (await sniperPartyManager?.publicClient?.waitForTransactionReceipt({ hash })) as any
       console.log(re)
 
       if (re.status !== 'success') {
@@ -109,6 +113,7 @@ export default function PartyItem(props: { data: any, }) {
         goalIpfsCid: data.IpfsHash,
         mode: 1
       })
+      navigate('/')
     },
     onSuccess: () => {
       console.log('success')
@@ -128,21 +133,28 @@ export default function PartyItem(props: { data: any, }) {
         <CardDescription>{data.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="text-sm">Creator: {data?.onChainData?.creator}</div>
-        <div className="text-sm">{Number(data?.onChainData?.endTime) > (Date.now()/1000)?'Party':'Voting'} Time:</div>
-        {Number(data?.onChainData?.endTime) > (Date.now()/1000) && (<TimeTracker startedAt={0} endAt={Number(data?.onChainData?.endTime)*1000} reverse={true} />)}
-        {Number(data?.onChainData?.votingEndTime) > (Date.now()/1000) && ( <TimeTracker startedAt={0} endAt={Number(data?.onChainData?.votingEndTime)*1000} reverse={true} />)}
+        {/* <div className="text-sm">Creator: 0xDcdF9e3D240bD0eAf5Fa19b33BA74d279eA4936c</div> */}
+        <div className="text-sm">Creator: {data?.partyData?.creator}</div>
+        <div className="text-sm">Party Time:</div>
+        <TimeTracker startedAt={0} endAt={Number(data?.partyData?.endTime) * 1000} reverse={true} />
+        <div className="text-sm">Voting Time:</div>
+        <TimeTracker
+          startedAt={0}
+          endAt={Number(data?.partyData?.votingEndTime) * 1000}
+          reverse={true}
+        />
+        <div className="text-sm">
+          Sponsored Funds: {data?.sponsoredData ? data?.sponsoredData?.amount / 10 ** 6 : 0} USDC
+        </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-4">
-        {/* {(Number(data?.onChainData?.endTime) < (Date.now()/1000) && Number(data?.onChainData?.votingEndTime) > (Date.now()/1000)) && ( */}
-          <Button onClick={() => navigate('/vote/' + String(data?.onChainData?.partyId))}>Vote</Button>
-        {/* )} */}
-        {data?.onChainData?.endTime > Date.now()/1000 && (
+        {(data?.onChainData?.endTime < Date.now() && data?.onChainData?.voteEndTime > Date.now()) && (<Button onClick={() => navigate('/vote/' + '1231313')}>Vote</Button>)}
+        {data?.onChainData?.endTime > Date.now() && (
           <Button onClick={() => joinMutate.mutate()}>Join</Button>
         )}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger>
-          {data?.onChainData?.endTime > Date.now()/1000 && (<Button>Sponsor ($)</Button>)}
+          {data?.onChainData?.endTime > Date.now() && (<Button>Sponsor ($)</Button>)}
           </DialogTrigger>
           <DialogContent>
             <DialogTitle>Sponsor</DialogTitle>
@@ -150,13 +162,14 @@ export default function PartyItem(props: { data: any, }) {
               <Input
                 value={sponsorAmount}
                 onChange={(e) => setSponsorAmount(Number(e.target.value))}
-                placeholder="Please input your sponsor amount"
+                placeholder="Please input your sponsor amount (USDC)"
+                min={4}
               ></Input>
             </div>
             <DialogFooter>
               <Button variant="secondary">Cancel</Button>
               <Button onClick={() => sponsorMutate.mutate()} disabled={sponsorMutate.isPending}>
-                {sponsorMutate.isPending ? <Loader2 className="animate-spin" /> : 'Sponsor ($)'}
+                {sponsorMutate.isPending ? <Loader2 className="animate-spin" /> : 'Sponsor ($USDC)'}
               </Button>
             </DialogFooter>
           </DialogContent>

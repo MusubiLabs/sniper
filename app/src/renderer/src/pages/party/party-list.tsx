@@ -36,6 +36,7 @@ export default function PartyList() {
   }, [dbParties, onChainParties, wallet])
 
   return (
+
     <div className="grid grid-cols-2 gap-4">
       {renderData?.map((e) => <PartyItem key={e.id} data={e} />)}
     </div>

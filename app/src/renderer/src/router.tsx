@@ -11,11 +11,11 @@ import VotePage from './pages/vote'
 export default function PageRouter() {
   return (
     <Router>
+      <Header />
       <LoginLayer>
         <main className="w-screen min-h-screen flex">
           <SideBar />
           <section className="w-full h-screen overflow-auto">
-            <Header />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/party" element={<PartyPage />} />

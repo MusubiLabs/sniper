@@ -38,8 +38,12 @@ export default function Profile() {
             {wallet?.address?.slice(-1)?.toUpperCase() || 'F'}
           </AvatarFallback>
         </Avatar>
-        <div className="text font-medium leading-none mt-4">
-          Points: <span className="text-blue-600 text-[20px]">{userPoint}</span>
+        <div className="text font-medium leading-none mt-4 flex items-center gap-4">
+          Coins: <span className="text-blue-600 text-[20px]">{userPoint}</span>
+          Reward:{' '}
+          <span className="text-blue-600 text-[20px]">
+            {userRewardsUsdc?.partyRewardClaimeds?.reduce((a, b) => a + Number(b?.amount)/10**6, 0) || 0} USDC
+          </span>
         </div>
       </div>
       <ContributionGraph />

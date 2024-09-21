@@ -10,17 +10,30 @@ import {
 import { getUserLastestZone } from '@renderer/graph'
 import { useToast } from '@renderer/hooks/use-toast'
 import { useConnectedWallet } from '@renderer/hooks/useConnectedWallet'
-import { client } from '@renderer/lib/client'
 import { finishGoal, getCalculateGoal, GoalsQueryEnum } from '@renderer/services'
+import { useWeb3Content } from '@renderer/stores/web3-content'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { PauseIcon } from 'lucide-react'
 import { useState } from 'react'
 
-export default function FinishGoal({ goalId, refetch }: { goalId: string; refetch: () => void }) {
+export default function FinishGoal({
+  goalId,
+  refetch,
+  ifpsCid
+}: {
+  goalId: string
+  refetch: () => void
+  ifpsCid: string
+}) {
   const [open, setOpen] = useState(false)
   const [isFinishPending, setIsFinishPending] = useState(false)
   const { toast } = useToast()
   const wallet = useConnectedWallet()
+
+  const { sniperContract } = useWeb3Content((state) => ({
+    sniperContract: state.snipertContract
+  }))
+
   const { data: caculateResult } = useQuery({
     queryKey: [GoalsQueryEnum.GOAL_CACULATE, goalId],
     queryFn: () => getCalculateGoal({ goalId }) as any,
@@ -46,10 +59,10 @@ export default function FinishGoal({ goalId, refetch }: { goalId: string; refetc
   const handleFinishGoal = async () => {
     setIsFinishPending(true)
     const zone = await getUserLastestZone(wallet?.address!)
-    const { user, zoneId } = zone
+    const zoneId = zone.zoneId
     console.log('zoneId', zone, zoneId)
     // 停止截图
-    client.stopScreenshotTask()
+    // client.stopScreenshotTask()
     if (!zoneId) {
       toast({
         title: 'Something is wrong. Please try again.',
@@ -59,7 +72,7 @@ export default function FinishGoal({ goalId, refetch }: { goalId: string; refetc
       return
     }
     // 更新数据库
-    await finishMutate.mutateAsync({ user, goalId, zoneId })
+    await finishMutate.mutateAsync({ user: wallet?.address as string, goalId, zoneId })
   }
 
   return (
@@ -87,8 +100,8 @@ export default function FinishGoal({ goalId, refetch }: { goalId: string; refetc
             </span>
           </div>
           <div>
-            Spend times:
-            <span className="text-large font-mono text-black ml-2">{Math.floor(caculateResult?.duration / 60)} minutes {Math.floor(caculateResult?.duration % 60)} seconds</span>
+            Spend times (minutes):
+            <span className="text-large font-mono text-black ml-2">{caculateResult?.duration}</span>
           </div>
         </div>
         <DialogFooter>

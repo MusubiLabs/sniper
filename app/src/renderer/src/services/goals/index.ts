@@ -22,7 +22,6 @@ export function createGoal(data: {
   name: string
   description: string
   duration: number
-  mode: number
 }) {
   return request('/api/goals/create', {
     data
@@ -41,7 +40,7 @@ export function getCalculateGoal(data: { goalId: string }) {
   })
 }
 
-export function finishGoal(data: { user: string; goalId: string; zoneId: string }) {
+export function finishGoal(data: {user: string; goalId: string; zoneId: string }) {
   return request('/api/goals/finish', {
     data
   })

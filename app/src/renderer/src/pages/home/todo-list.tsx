@@ -47,9 +47,9 @@ export default function TODO() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      duration: 0
+      name: 'Coding for 40 minutes and deploy the MVP on the blockchain testnet',
+      description: 'Allow me to use IDEs to code and Notion to do documentation, and conduct research through browser activities(Claude3 ChatGPT). However, restrict access to unrelated videos or Twitter.',
+      duration: 5
     }
   })
 
@@ -137,7 +137,7 @@ export default function TODO() {
                   <FormItem>
                     <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder="Please enter title" {...field} />
+                      <Input placeholder="Please enter title" defaultValue='Coding for 40 minutes and deploy the MVP on the blockchain testnet' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -150,7 +150,7 @@ export default function TODO() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Please enter description" {...field} />
+                      <Textarea placeholder="Please enter description" defaultValue='Allow me to use IDEs to code and Notion to do documentation, and conduct research through browser activities(Claude3 ChatGPT). However, restrict access to unrelated videos or Twitter.' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,6 +166,7 @@ export default function TODO() {
                       <Input
                         type="number"
                         min="1"
+                        defaultValue={5}
                         {...field}
                         onChange={(e) => field.onChange(parseInt(e.target.value) * 60)}
                       />
