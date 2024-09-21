@@ -16,7 +16,7 @@ export class GoalsService {
     private goalRepository: Repository<Goal>,
     @InjectRepository(Attention)
     private attentionsRepository: Repository<Attention>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Goal[]> {
     return this.goalRepository.find();
@@ -190,7 +190,7 @@ export class GoalsService {
         productivityScore: BigInt(
           (calculation.averageProductivityScore || 1) * 1000,
         ),
-        finalDuration: BigInt(calculation.duration),
+        finalDuration: BigInt(calculation.duration * 60),
         ipfsHash: ipfsResult.IpfsHash,
       });
 
@@ -200,7 +200,7 @@ export class GoalsService {
         productivityScore: BigInt(
           (calculation.averageProductivityScore || 1) * 1000,
         ),
-        finalDuration: BigInt(calculation.duration),
+        finalDuration: BigInt(calculation.duration * 60),
         ipfsHash: ipfsResult.IpfsHash,
       } as any);
 
