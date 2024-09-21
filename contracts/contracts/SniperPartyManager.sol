@@ -69,7 +69,7 @@ contract SniperPartyManager is Ownable(msg.sender) {
     struct Party {
         address maciInstance;
         uint256 pollId;
-        SniperPartyCredit sniperPartyCredit;
+        SniperPartyCredit partyToken;
         uint256 endTime;
         uint256 votingEndTime;
         string ipfsHash;
@@ -112,22 +112,37 @@ contract SniperPartyManager is Ownable(msg.sender) {
         address maciInstance,
         uint256 partyId,
         uint256 pollId,
-        address sniperPartyCredit,
+        address partyToken,
         uint256 endTime,
         uint256 votingEndTime
     );
 
     event PartyJoined(
         address indexed user,
-        uint indexed partyId,
-        uint indexed zoneId
+        uint256 indexed partyId,
+        uint256 indexed zoneId
     );
     event PartySponsored(
         address indexed user,
+        uint256 indexed partyId,
         uint256 amount,
         uint256 partyCoinsReceived
     );
 
+    event PartyRewardClaimed(
+        address indexed user,
+        uint256 indexed partyId,
+        address claimedToken,
+        uint256 amount
+    );
+    event PartyFinalized(
+        address indexed finalizer,
+        uint256 indexed partyId,
+        uint256 _totalSpent,
+        uint256 _totalSpentSalt,
+        uint256 _newResultCommitment,
+        uint256 _perVOSpentVoiceCreditsHash
+    );
     modifier onlyVerifiedUser() {
         if (!worldVerifier.isHuman(msg.sender)) {
             revert UnverifiedUser();
@@ -160,8 +175,9 @@ contract SniperPartyManager is Ownable(msg.sender) {
         ) {
             revert InvalidPartyEndTime();
         }
-        (address maciAddress, address sniperPartyCredit) = ISniperMACIFactory(maciConfig.sniperMACIFactory)
-            .deploy(
+        (address maciAddress, address partyToken) = ISniperMACIFactory(
+            maciConfig.sniperMACIFactory
+        ).deploy(
                 maciConfig.pollFactory,
                 maciConfig.messageProcessorFactory,
                 maciConfig.tallyFactory,
@@ -172,7 +188,7 @@ contract SniperPartyManager is Ownable(msg.sender) {
         Party storage party = activeParties[nextParty];
         party.maciInstance = maciAddress;
         party.pollId = ISniperMACI(maciAddress).getNextPollId();
-        party.sniperPartyCredit = SniperPartyCredit(sniperPartyCredit);
+        party.partyToken = SniperPartyCredit(partyToken);
         party.endTime = partyEndTime;
         party.votingEndTime = votingEndTime;
         party.ipfsHash = ipfsHash;
@@ -192,7 +208,7 @@ contract SniperPartyManager is Ownable(msg.sender) {
             maciAddress,
             nextParty,
             activeParties[nextParty].pollId,
-            address(sniperPartyCredit),
+            address(partyToken),
             partyEndTime,
             votingEndTime
         );
@@ -232,10 +248,10 @@ contract SniperPartyManager is Ownable(msg.sender) {
         }
 
         usdcToken.transferFrom(msg.sender, address(this), usdcAmount);
-        activeParties[partyId].sniperPartyCredit.mint(msg.sender, usdcAmount);
+        activeParties[partyId].partyToken.mint(msg.sender, usdcAmount);
         partyPool[partyId] += usdcAmount;
 
-        emit PartySponsored(msg.sender, usdcAmount, usdcAmount);
+        emit PartySponsored(msg.sender, partyId, usdcAmount, usdcAmount);
     }
 
     function claimFunds(
@@ -286,6 +302,12 @@ contract SniperPartyManager is Ownable(msg.sender) {
             // transfer the token to the recipient
             usdcToken.transfer(recipient, allocatedAmount);
         }
+        emit PartyRewardClaimed(
+            recipient,
+            partyId,
+            address(usdcToken),
+            allocatedAmount
+        );
     }
 
     /// @notice Finalize the round
@@ -336,6 +358,14 @@ contract SniperPartyManager is Ownable(msg.sender) {
             budget,
             _totalSpent * _totalSpent,
             _totalSpent
+        );
+        emit PartyFinalized(
+            msg.sender,
+            partyId,
+            _totalSpent,
+            _totalSpentSalt,
+            _newResultCommitment,
+            _perVOSpentVoiceCreditsHash
         );
     }
 }

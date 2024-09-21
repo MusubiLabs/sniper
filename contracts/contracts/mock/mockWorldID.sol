@@ -14,7 +14,7 @@ contract MockWorldID is IWorldID {
         uint256, // externalNullifierHash,
         uint256[8] calldata // proof
     ) external pure{
-        require(true==true, "MockWorldID: Invalid proof");
+        require(true, "MockWorldID: Invalid proof");
     }
 
 }

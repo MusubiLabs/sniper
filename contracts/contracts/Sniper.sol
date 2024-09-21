@@ -6,12 +6,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISP, Attestation} from "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import {IWorldVerifier} from "./interfaces/IWorldVerifier.sol";
 import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "./error.sol";
 
 contract Sniper is Ownable(msg.sender) {
     // 最大分數為 1000，為避免處理小數點，將基礎值放大 1000 倍來計算
-    uint256 constant BASE_REWARD = 1000 * 1000;
-    uint256 constant DISTRACTION_PENALTY = 5 * 1000; // 每次分心扣除的分數放大 1000 倍
+    uint256 constant BASE_REWARD = 10e5;
+    uint256 constant DISTRACTION_PENALTY = 5 * 10e2; // 每次分心扣除的分數放大 1000 倍
 
     IWorldVerifier public worldVerifier;
     ISP public signProtocol;
@@ -131,7 +132,6 @@ contract Sniper is Ownable(msg.sender) {
         uint256 zoneId,
         CompletedDetails calldata details
     ) external onlyOwner {
-
         SniperZone storage zone = userZones[user][zoneId];
         if (zone.completed) {
             revert ZoneAlreadyFinalized();
@@ -165,7 +165,15 @@ contract Sniper is Ownable(msg.sender) {
                 details.finalDuration,
                 zone.duration
             ),
-            "",
+            string(
+                abi.encodePacked(
+                    Strings.toHexString(uint256(uint160(address(this)))),
+                    "_",
+                    Strings.toString(uint256(zoneId)),
+                    "_",
+                    Strings.toHexString(uint256(uint160(user)))
+                )
+            ),
             "",
             abi.encode(user)
         );
@@ -195,18 +203,18 @@ contract Sniper is Ownable(msg.sender) {
         uint256 timeWeight;
         if (finalDuration <= estimateDuration) {
             // 預計時間內，獎勵隨著時間增加
-            timeWeight = (finalDuration * 1000) / estimateDuration;
+            timeWeight =
+                (BASE_REWARD * finalDuration * 10e5) /
+                estimateDuration;
         } else {
             // 超過預計時間，獎勵隨著時間減少
-            timeWeight = (estimateDuration * 1000) / finalDuration;
+            timeWeight =
+                (BASE_REWARD * estimateDuration * 10e5) /
+                finalDuration;
         }
 
-        // 生產力加權計算，生產力原本是 1-10，放大1000倍處理
-        uint256 productivityWeight = productivityScore;
-
         // 計算分數
-        uint256 reward = (BASE_REWARD * timeWeight * productivityWeight) /
-            (1000 * 10000); // 放大 1000 倍的處理
+        uint256 reward = (timeWeight * productivityScore) / 10e9;
 
         // 扣除分心次數的分數
         uint256 totalPenalty = DISTRACTION_PENALTY * distractionScore;

@@ -3,11 +3,10 @@ pragma solidity ^0.8.24;
 import {Attestation} from "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
 import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
 import {IWorldID} from "./interfaces/IWorldID.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
 import "./error.sol";
-
 library ByteHasher {
     /// @dev Creates a keccak256 hash of a bytestring.
     /// @param value The bytestring to hash
@@ -30,18 +29,9 @@ contract WorldVerifier {
     // the schemaId to check against
     uint64 public immutable schemaId;
 
-    // the trusted attester
-    address public immutable attester;
-
-    /// @notice the reference to the MACI contract
-    address public maci;
-
-    // a mapping of attestations that have already registered
-    mapping(uint64 => bool) public registeredAttestations;
-
     event Verify(address indexed user);
 
-    /// @notice Deploy an instance of SPGatekeeper
+    /// @notice Deploy an instance of WorldVerifier
     /// @param _sp The SP contract
     /// @param _schemaId The schemaId UID
     constructor(
@@ -100,6 +90,7 @@ contract WorldVerifier {
         uint256 externalNullifierHash
     ) internal {
         // First, we make sure this person hasn't done this before
+
         if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
 
         // We now verify the provided proof is valid and the user is verified by World ID
