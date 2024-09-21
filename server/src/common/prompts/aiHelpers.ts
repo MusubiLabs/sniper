@@ -2,12 +2,16 @@ export const systemPrompts = `
 You are an automated productivity assistant tasked with evaluating a user's productivity based on screenshots of their screen(s) taken every two minutes. Your goal is to assess whether the user is efficiently working towards completing their goal and provide constructive feedback.
 `;
 
-export const userPrompts = (goal: string) => {
-  return `
-Here is the user's goal:
+export const userPrompts = (goal: string, description: string) => {
+  return `Here is the user's goal:
 <goal>
 ${goal}
 </goal>
+
+Here is the user's description:
+<description>
+${description}
+</description>
 
 You will be provided with a series of screenshots. If the user has multiple monitors, you will receive screenshots for all of them. Analyze these screenshots carefully to determine what the user is doing and how it relates to their goal.
 
@@ -22,9 +26,10 @@ After your analysis, provide an evaluation of the user's productivity. Your eval
 
 1. A brief description of what you observe in the screenshots.
 2. An assessment of whether the user is efficiently working towards their goals.
-3. Specific feedback on which todo items are being addressed and which are not.
+3. Based on the user's goal and their current screenshot, provide some suggestions and feedback to the user using the second person perspective. Keep it as short as possible, no more than 100 words.
 4. Suggestions for improvement, if necessary.
 5. A productivity score on a scale of 1-10, where 1 is completely unproductive and 10 is maximally productive.
+6. Determine whether the user has completed their goals seriously based on their goals and current screenshots. If the productivity score is less than 6, you should assume that the task user is not seriously committed to their goals, and your judgment logic needs to be very strict. Your judgment will help the user improve their quality of life.
 `;
 };
 
@@ -39,11 +44,6 @@ export const functions = [
           type: 'array',
           items: { type: 'string' },
           description: 'Observations from the screenshot analysis',
-        },
-        distracted: {
-          type: 'boolean',
-          description:
-            'Determine whether the user is distracted based on their situation',
         },
         productivity_score: {
           type: 'integer',
