@@ -9,6 +9,7 @@ import "./interfaces/IWorldVerifier.sol";
 import {DataLocation} from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
 import "./error.sol";
 import "hardhat/console.sol";
+
 contract Sniper is Ownable(msg.sender) {
     IWorldVerifier public worldVerifier;
     ISP public signProtocol;
@@ -22,6 +23,13 @@ contract Sniper is Ownable(msg.sender) {
         bool completed;
         uint64 attestationId;
     }
+    struct CompletedDetails {
+        uint256 distractionScore;
+        uint256 productivityScore;
+        string observations;
+        string assessment;
+        string feedback;
+    }
 
     mapping(address => SniperZone[]) public userZones;
 
@@ -33,7 +41,7 @@ contract Sniper is Ownable(msg.sender) {
     event ZoneCompleted(
         address indexed user,
         uint256 zoneId,
-        uint256 distractionIndex,
+        uint256 distractionScore,
         uint64 attestationId
     );
 
@@ -78,9 +86,8 @@ contract Sniper is Ownable(msg.sender) {
     function completeZone(
         address user,
         uint256 zoneId,
-        uint256 distractionIndex
+        CompletedDetails calldata details
     ) external onlyOwner {
-
         SniperZone storage zone = userZones[user][zoneId];
         require(
             block.timestamp >= zone.startTime + zone.duration,
@@ -98,13 +105,20 @@ contract Sniper is Ownable(msg.sender) {
             dataLocation: DataLocation.ONCHAIN,
             revoked: false,
             recipients: new bytes[](1),
-            data: abi.encodePacked(msg.sender)
+            data: abi.encode(
+                zoneId,
+                details.productivityScore,
+                details.distractionScore,
+                details.observations,
+                details.assessment,
+                details.feedback
+            )
         });
         attestation.recipients[0] = (abi.encodePacked(user));
         zone.attestationId = signProtocol.attest(
             attestation,
             rewardToken,
-            calculateReward(distractionIndex),
+            calculateReward(details.distractionScore),
             "",
             "",
             abi.encode(user)
@@ -113,15 +127,15 @@ contract Sniper is Ownable(msg.sender) {
         emit ZoneCompleted(
             user,
             zoneId,
-            distractionIndex,
+            details.distractionScore,
             zone.attestationId
         );
     }
 
     function calculateReward(
-        uint256 distractionIndex
+        uint256 distractionScore
     ) internal pure returns (uint256) {
         // Custom reward logic: for example, the lower the distraction index, the higher the reward
-        return (1000 - distractionIndex * 10) * 1 ether; // Example: max 1000 tokens, reducing with higher distraction
+        return (1000 - distractionScore * 10) * 1 ether; // Example: max 1000 tokens, reducing with higher distraction
     }
 }

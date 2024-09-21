@@ -3,22 +3,20 @@ import {
   loadFixture,
 } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
-import hre from "hardhat";
+import hre, { ignition, network } from "hardhat";
 import { decodeEventLog, zeroAddress } from "viem";
 import { DataLocationOnChain } from "@ethsign/sp-sdk";
 
 describe("Sniper", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
   async function deploySniperFixture() {
     // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount] = await hre.viem.getWalletClients();
+
     const publicClient = await hre.viem.getPublicClient();
+
     const sp = await hre.viem.deployContract("MockSP", [], {});
 
     const worldId = await hre.viem.deployContract("MockWorldID", [], {});
-
     const mockSPAsOwner = await hre.viem.getContractAt(
       "MockSP",
       sp.address,
@@ -34,7 +32,14 @@ describe("Sniper", function () {
       maxValidFor: 0n,
       hook: sphook.address,
       timestamp: 0n,
-      data: [{ name: "name", type: "string" }],
+      data: [
+        { name: "zoneId", type: "uint256" },
+        { name: "productivityScore", type: "uint256" },
+        { name: "distractionScore", type: "uint256" },
+        { name: "observations", type: "string" },
+        { name: "assessment", type: "string" },
+        { name: "feedback", type: "string" },
+      ],
     }, "0x"])
 
     // For verify world action schema
@@ -119,29 +124,20 @@ describe("Sniper", function () {
   });
 
   describe("Complete Sniper zone", function () {
-    //   describe("Validations", function () {
-    beforeEach(async function () {
-      const { sniper, worldVerifier, otherAccount } = await loadFixture(deploySniperFixture);
-      const sniperAsOther = await hre.viem.getContractAt(
-        "Sniper",
-        sniper.address,
-        { client: { wallet: otherAccount } }
-      );      
-      const worldVerifierAsOther = await hre.viem.getContractAt(
-        "WorldVerifier",
-        worldVerifier.address,
-        { client: { wallet: otherAccount } }
-      );
-      await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
-      await sniperAsOther.write.createSniperZone(["test", 25n * 3600n]);
-    });
+    const completeDetails = {
+      productivityScore: 50n,
+      distractionScore: 50n,
+      observations: "test",
+      assessment: "test",
+      feedback: "test",
+    }
     it("Should complete zone and trigger hook mint reward correctly", async function () {
       const { sniper, rewardToken, publicClient, worldVerifier, otherAccount } = await loadFixture(deploySniperFixture);
       const sniperAsOther = await hre.viem.getContractAt(
         "Sniper",
         sniper.address,
         { client: { wallet: otherAccount } }
-      );      
+      );
       const worldVerifierAsOther = await hre.viem.getContractAt(
         "WorldVerifier",
         worldVerifier.address,
@@ -150,18 +146,50 @@ describe("Sniper", function () {
       await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
       await sniperAsOther.write.createSniperZone(["test", 25n * 60n]);
       await time.increase(60 * 60);
-      let tx = await sniper.write.completeZone([otherAccount.account.address, 0n, 50n]); 
+      let tx = await sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails]);
 
       const receipt = await publicClient.getTransactionReceipt({ hash: tx });
       // Access the events from the receipt
       const decodedEvent = decodeEventLog({ abi: sniper.abi, data: receipt.logs[2].data, topics: receipt.logs[2].topics });
-      const { user, zoneId, attestationId  } = decodedEvent.args;
+      const { user, zoneId, attestationId } = decodedEvent.args;
       const zone = await sniper.read.userZones([otherAccount.account.address, 0n]);
-      console.log(user, zoneId, attestationId, zone);
       expect(zone[3]).to.eq(true);
       expect(await rewardToken.read.balanceOf([otherAccount.account.address])).to.eq(500n * 10n ** 18n);
     });
-
+    it("Should failed when Zone already completed", async function () {
+      const { sniper, rewardToken, publicClient, worldVerifier, otherAccount } = await loadFixture(deploySniperFixture);
+      const sniperAsOther = await hre.viem.getContractAt(
+        "Sniper",
+        sniper.address,
+        { client: { wallet: otherAccount } }
+      );
+      const worldVerifierAsOther = await hre.viem.getContractAt(
+        "WorldVerifier",
+        worldVerifier.address,
+        { client: { wallet: otherAccount } }
+      );
+      await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
+      await sniperAsOther.write.createSniperZone(["test", 25n * 60n]);
+      await time.increase(60 * 60);
+      await sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails]);
+      expect(sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails])).to.be.rejectedWith("Zone already completed");
+    });
+    it("Should failed when Zone not yet ended", async function () {
+      const { sniper, rewardToken, publicClient, worldVerifier, otherAccount } = await loadFixture(deploySniperFixture);
+      const sniperAsOther = await hre.viem.getContractAt(
+        "Sniper",
+        sniper.address,
+        { client: { wallet: otherAccount } }
+      );
+      const worldVerifierAsOther = await hre.viem.getContractAt(
+        "WorldVerifier",
+        worldVerifier.address,
+        { client: { wallet: otherAccount } }
+      );
+      await worldVerifierAsOther.write.verifyWorldAction([0n, 1n, [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n]]);
+      await sniperAsOther.write.createSniperZone(["test", 25n * 60n]);
+      await expect(sniper.write.completeZone([otherAccount.account.address, 0n, completeDetails])).to.be.rejectedWith("Zone not yet ended");
+    });
   });
 
 });
