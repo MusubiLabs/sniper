@@ -17,7 +17,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       forking: {
         url: "https://opt-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb",
-        blockNumber: 16695388,
+        blockNumber: 17245383,
       },
       accounts: [
         {privateKey:process.env.PRIVATE_KEY as string,balance: "100000000000000000000000"},
