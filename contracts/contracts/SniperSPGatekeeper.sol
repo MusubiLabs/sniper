@@ -19,22 +19,22 @@ contract SniperSPGatekeeper is SignUpGatekeeper, Ownable(msg.sender) {
 
     // the trusted attester
     address public immutable attester;
-    address public partyManager;
+    address public maciFactory;
     /// @notice the reference to the MACI contract
     mapping(address => bool) public maci;
 
     // a mapping of attestations that have already registered
     mapping(uint64 => mapping(uint256 => bool)) public registeredAttestations;
 
-    modifier onlyPartyManager() {
-        if (msg.sender != partyManager) {
-            revert InvalidPartyManager();
+    modifier onlyMACIFactory() {
+        if (msg.sender != maciFactory) {
+            revert InvalidMACIFactory();
         }
         _;
     }
 
-    function setPartyManager(address _partyManager) external onlyOwner {
-        partyManager = _partyManager;
+    function setPartyManager(address _maciFactory) external onlyOwner {
+        maciFactory = _maciFactory;
     }
 
     /// @notice Deploy an instance of SniperSPGatekeeper
@@ -50,7 +50,7 @@ contract SniperSPGatekeeper is SignUpGatekeeper, Ownable(msg.sender) {
 
     /// @notice Adds an uninitialised MACI instance to allow for token signups
     /// @param _maci The MACI contract interface to be stored
-    function setMaciInstance(address _maci) public override onlyPartyManager {
+    function setMaciInstance(address _maci) public override onlyMACIFactory {
         if (_maci == address(0)) revert ZeroAddress();
         maci[_maci] = true;
     }

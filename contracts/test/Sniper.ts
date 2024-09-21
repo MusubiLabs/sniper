@@ -125,7 +125,7 @@ describe("Sniper", function () {
       sphook.address,
       { client: { wallet: owner } }
     );
-    await sniperSPGatekeeper.write.setPartyManager([sniperPartyManager.address]);
+    await sniperSPGatekeeper.write.setMACIFactory([MACIFactory.address]);
     await sphookAsOwner.write.setWhitelist([sniper.address, true]);
 
     await sphookAsOwner.write.setWorldVerifier([worldVerifier.address]);
@@ -243,7 +243,7 @@ describe("Sniper", function () {
 
       const party = await sniperPartyManager.read.activeParties([0n]);
       expect(party[3]).to.equal(partyEndTime);
-      expect(party[4]).to.equal(ipfsHash);
+      expect(party[5]).to.equal(ipfsHash);
     });
 
     it("Should join a party and create a sniper zone", async function () {
@@ -257,7 +257,7 @@ describe("Sniper", function () {
       await sniperPartyManager.write.joinParty([0n]);
 
       const party = await sniperPartyManager.read.activeParties([0n]);
-      expect(party[5]).to.equal(1n);
+      expect(party[6]).to.equal(1n);
 
       const zone = await sniper.read.userZones([owner.account.address, 0n]);
       expect(zone[0]).to.equal(ipfsHash);

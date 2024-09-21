@@ -32,7 +32,7 @@ export interface Tally {
   }
 // This has to match the MACI TREE_ARITY at:
 // github.com/privacy-scaling-explorations/maci/blob/0c18913d4c84bfa9fbfd66dc017e338df9fdda96/contracts/contracts/MACI.sol#L31
-export const MACI_TREE_ARITY = 2
+export const MACI_TREE_ARITY = 5
 // const provider: ethers.Provider = new ethers.JsonRpcProvider('https://opt-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb', new ethers.Network('optimism_sepolia', 11155420), { staticNetwork: true })
 // const provider: ethers.Provider = new ethers.JsonRpcProvider('https://base-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb', new ethers.Network('base_sepolia', 84532), { staticNetwork: true })
 // const provider: ethers.Provider = new ethers.JsonRpcProvider('https://arb-sepolia.g.alchemy.com/v2/Uye7DOCgmKHvFB8vOHGyC_sh4ysKjQNb', new ethers.Network('arbitrum_sepolia', 421614), { staticNetwork: true })
