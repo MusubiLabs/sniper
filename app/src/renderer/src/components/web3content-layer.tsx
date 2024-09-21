@@ -1,6 +1,6 @@
 import { useDynamicContext, useIsLoggedIn } from '@dynamic-labs/sdk-react-core'
 import { SniperContract } from '@renderer/lib/sniper'
-import { SniperPointContract } from '@renderer/lib/sniperPoint'
+import { SniperCoinContract } from '@renderer/lib/sniperCoin'
 import { SniperPartyManager } from '@renderer/lib/party'
 import { VoteService } from '@renderer/lib/vote'
 import { USDCContract } from '@renderer/lib/usdc'
@@ -16,7 +16,7 @@ export default function Web3ContentLayer() {
     setWorldVerifierContract,
     setIsWorldIdVerified,
     setSnipertContract,
-    setSniperPointContract,
+    setSniperCoinContract,
     setVoteService,
     setSniperPartyManager,
     setUSDContract
@@ -24,7 +24,7 @@ export default function Web3ContentLayer() {
     setWorldVerifierContract: state.setWorldVerifierContract,
     setIsWorldIdVerified: state.setIsWorldIdVerified,
     setSnipertContract: state.setSnipertContract,
-    setSniperPointContract: state.setSniperPointContract,
+    setSniperCoinContract: state.setSniperCoinContract,
     setVoteService: state.setVoteService,
     setSniperPartyManager: state.setSniperPartyManager,
     setUSDContract: state.setUSDContract
@@ -36,7 +36,7 @@ export default function Web3ContentLayer() {
 
     let worldIdverifier: WorldVerifierContract | null = null
     let sniperContract: SniperContract | null = null
-    let sniperPointContract: SniperPointContract | null = null
+    let sniperCoinContract: SniperCoinContract | null = null
     let voteService: VoteService | null = null
     let sniperPartyManager: SniperPartyManager | null = null
     let usdcContract: USDCContract | null = null
@@ -54,7 +54,7 @@ export default function Web3ContentLayer() {
         walletClient
       )
 
-      sniperPointContract = new SniperPointContract(
+      sniperCoinContract = new SniperCoinContract(
         import.meta.env.VITE_SNIPER_COIN_CONTRACT_ADDRESS,
         publicClient,
         walletClient
@@ -83,8 +83,8 @@ export default function Web3ContentLayer() {
       setSnipertContract(sniperContract)
     }
 
-    if (sniperPointContract) {
-      setSniperPointContract(sniperPointContract)
+    if (sniperCoinContract) {
+      setSniperCoinContract(sniperCoinContract)
     }
 
     if (voteService) {

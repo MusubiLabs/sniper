@@ -1,5 +1,5 @@
 import { SniperContract } from '@renderer/lib/sniper'
-import { SniperPointContract } from '@renderer/lib/sniperPoint'
+import { SniperCoinContract } from '@renderer/lib/sniperCoin'
 import { SniperPartyManager } from '@renderer/lib/party'
 import { VoteService } from '@renderer/lib/vote'
 import { WorldVerifierContract } from '@renderer/lib/worldIdverifier'
@@ -11,7 +11,7 @@ export type TWeb3Content = {
   isWorldIdVerified: boolean
   worldVerifierContract: WorldVerifierContract | null
   snipertContract: SniperContract | null
-  sniperPointContract: SniperPointContract | null
+  sniperCoinContract: SniperCoinContract | null
   voteService: VoteService | null
   sniperPartyManager: SniperPartyManager | null
   usdcContract: USDCContract | null
@@ -19,7 +19,7 @@ export type TWeb3Content = {
   setIsWorldIdVerified: (isVerified: boolean) => void
   setSnipertContract: (contract: SniperContract | null) => void
   setWorldVerifierContract: (contract: WorldVerifierContract | null) => void
-  setSniperPointContract: (contract: SniperPointContract | null) => void
+  setSniperCoinContract: (contract: SniperCoinContract | null) => void
   setVoteService: (service: VoteService | null) => void
   setSniperPartyManager: (manager: SniperPartyManager | null) => void
   setUSDContract: (contract: USDCContract | null) => void
@@ -30,7 +30,7 @@ export const useWeb3Content = create<TWeb3Content>((set) => ({
   isWorldIdVerified: false,
   worldVerifierContract: null,
   snipertContract: null,
-  sniperPointContract: null,
+  sniperCoinContract: null,
   voteService: null,
   sniperPartyManager: null,
   usdcContract: null,
@@ -41,7 +41,7 @@ export const useWeb3Content = create<TWeb3Content>((set) => ({
   setSnipertContract: (contract) => set((state) => ({ ...state, snipertContract: contract })),
   setWorldVerifierContract: (contract) =>
     set((state) => ({ ...state, worldVerifierContract: contract })),
-  setSniperPointContract: (contract) => set((state) => ({ ...state, sniperPointContract: contract })),
+  setSniperCoinContract: (contract) => set((state) => ({ ...state, sniperCoinContract: contract })),
   setVoteService: (service) => set((state) => ({ ...state, voteService: service })),
   setSniperPartyManager: (manager) => set((state) => ({ ...state, sniperPartyManager: manager })),
   setUSDContract: (contract) => set((state) => ({ ...state, usdcContract: contract}))

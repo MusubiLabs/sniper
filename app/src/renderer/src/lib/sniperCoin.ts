@@ -431,7 +431,7 @@ const abi = [
   }
 ]
 
-class SniperPointContract {
+class SniperCoinContract {
   private contractAddress: string
   private contractAbi: any
   private publicClient: PublicClient
@@ -459,4 +459,4 @@ class SniperPointContract {
   }
 }
 
-export { SniperPointContract }
+export { SniperCoinContract }
