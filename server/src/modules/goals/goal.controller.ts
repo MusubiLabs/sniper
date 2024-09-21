@@ -24,7 +24,13 @@ export class GoalsController {
 
   @Post('start')
   start(
-    @Body() body: { address: string; goalId: string; startedAt: Date },
+    @Body()
+    body: {
+      address: string;
+      goalId: string;
+      startedAt: Date;
+      sessionId: string;
+    },
   ): Promise<Goal> {
     return this.goalsService.start(body);
   }
@@ -44,8 +50,12 @@ export class GoalsController {
   }
 
   @Post('finish')
-  async finish(@Body() body: { goalId: string }): Promise<any> {
-    return await this.goalsService.finishGoal(body.goalId);
+  async finish(
+    @Body() body: { goalId: string; sessionId: string },
+  ): Promise<any> {
+    console.log(body);
+
+    return await this.goalsService.finishGoal(body.goalId, body.sessionId);
   }
 
   @Post('finshed-goals')

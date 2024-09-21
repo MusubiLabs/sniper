@@ -1,7 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import * as bodyParser from 'body-parser';
+import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+
+dotenv.config({});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

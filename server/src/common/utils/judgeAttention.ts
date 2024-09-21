@@ -1,8 +1,5 @@
 import { functions, systemPrompts, userPrompts } from '../prompts/aiHelpers';
 
-const apiKey = 'sk-svcacct-Bsn1lYtDsvqPadRey7i8T3BlbkFJHMlw1aRwPp9WCEaADycf';
-const proxyUrl = 'https://funni.cn/v1';
-
 export default async function judgeAttention({
   goal,
   description,
@@ -16,7 +13,8 @@ export default async function judgeAttention({
   if (!description) return false;
   if (screens.length === 0) return false;
 
-  // const base64Image = `data:image/png;base64,${imageBuffer.toString('base64')}`
+  const apiKey = process.env.OPENAI_API_KEY;
+  const proxyUrl = process.env.OPENAI_API_PROXY;
 
   const images = screens.map((screen) => {
     return {
@@ -51,7 +49,7 @@ export default async function judgeAttention({
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-4o-mini',
       messages,
       functions: functions,
       function_call: { name: 'evaluate_productivity' },

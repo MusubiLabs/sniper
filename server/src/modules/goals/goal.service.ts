@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { eachDayOfInterval, format } from 'date-fns';
+import { PinataSDK } from 'pinata-web3';
+import sniperContractCall from 'src/common/utils/sniperContractCall';
 import judgeAttention from 'src/common/utils/judgeAttention';
+import summarizeGoal from 'src/common/utils/summary';
 import { Between, Raw, Repository } from 'typeorm';
 import { Attention } from '../attentions/attention.entity';
 import { Goal } from './goal.entity';
@@ -31,8 +34,6 @@ export class GoalsService {
   }
 
   async findUnfinished(address: string): Promise<Goal[]> {
-    console.log(address);
-
     return await this.goalRepository.find({
       where: {
         address: Raw((alias) => `LOWER(${alias}) = LOWER('${address}')`, {
@@ -80,7 +81,7 @@ export class GoalsService {
     const goal = await this.findById(goalId, address);
 
     // 未开始或者已经结束，则直接报错
-    if (!goal.isStarted || goal.isFinished) {
+    if (!goal?.isStarted || goal?.isFinished) {
       throw new Error('Goal not started or finished');
     }
 
@@ -133,14 +134,20 @@ export class GoalsService {
 
     return {
       counts: attentions.length, // 记录的次数
-      duration: duration.toFixed(0), // 记录的分数
-      averageProductivityScore: averageProductivityScore.toFixed(2), // 平均生产力分数
+      duration: Math.round(duration), // 记录的分数
+      averageProductivityScore: Math.round(averageProductivityScore), // 平均生产力分数
       distractionCount, // 注意力缺失的次数
     };
   }
 
-  async finishGoal(goalId: string) {
+  async finishGoal(goalId: string, sessionId: string) {
     const goal = await this.goalRepository.findOne({ where: { id: goalId } });
+
+    console.log(sessionId);
+
+    if (!sessionId) {
+      throw new Error('Session id not found');
+    }
 
     if (!goal) {
       throw new Error('Goal not found');
@@ -151,11 +158,65 @@ export class GoalsService {
       throw new Error('Goal not started or finished');
     }
 
-    return this.goalRepository.save({
-      ...goal,
-      isFinished: true,
-      finishedAt: new Date(),
-    });
+    try {
+      const attentions = await this.attentionsRepository.find({
+        where: { goalId },
+      });
+
+      const calculation = await this.calculation(goalId);
+
+      Logger.debug(calculation);
+
+      const summarize = await summarizeGoal(attentions);
+      Logger.debug(summarize.summarizeResult);
+
+      const pinata = new PinataSDK({
+        pinataJwt: `${process.env.VITE_PINATA_JWT}`,
+        pinataGateway: `${process.env.VITE_GATEWAY_URL}`,
+      });
+
+      // 上传内容到ipfs
+      const ipfsResult = await pinata.upload.json({
+        summarize: summarize.summarizeResult,
+        attentions: attentions.map((attention) => {
+          const { screens, ...rest } = attention;
+          return rest;
+        }),
+      });
+      console.log('ifpsResult', ipfsResult);
+
+      console.log([
+        goal.address,
+        Number(sessionId),
+        [
+          calculation.distractionCount || 1,
+          (calculation.averageProductivityScore || 1) as any,
+          calculation.duration,
+          ipfsResult.IpfsHash,
+        ],
+      ]);
+
+      // 获取用户的总结
+      await sniperContractCall([
+        goal.address,
+        Number(sessionId),
+        [
+          calculation.distractionCount || 1,
+          calculation.averageProductivityScore || 1,
+          calculation.duration,
+          ipfsResult.IpfsHash,
+        ],
+      ] as any);
+
+      return this.goalRepository.save({
+        ...goal,
+        sessionId,
+        isFinished: true,
+        finishedAt: new Date(),
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async getFinishGoals(address: string) {

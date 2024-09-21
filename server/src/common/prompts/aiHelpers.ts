@@ -1,3 +1,5 @@
+import { Attention } from 'src/modules/attentions/attention.entity';
+
 export const systemPrompts = `
 You are an automated productivity assistant tasked with evaluating a user's productivity based on screenshots of their screen(s) taken every two minutes. Your goal is to assess whether the user is efficiently working towards completing their goal and provide constructive feedback.
 `;
@@ -68,4 +70,53 @@ export const functions = [
       ],
     },
   },
+  {
+    name: 'sumarry_productivity',
+    description: 'Summarize user productivity based on screenshot analysis',
+    parameters: {
+      type: 'object',
+      properties: {
+        summarize_msg: {
+          type: 'string',
+          description:
+            'Summarize user productivity based on screenshot analysis',
+        },
+      },
+      required: ['summarize_msg'],
+    },
+  },
 ];
+
+export const summaryPrompts = (attentions: Attention[]) => {
+  const descriptions = attentions?.map((attention) => {
+    return attention?.assessment || '';
+  });
+
+  return `
+You are assisting in summarizing a user's progress on a todo task. The user has been working on a task, and screenshots have been taken periodically to monitor their progress. Each screenshot has been described by an AI. Your job is to summarize these descriptions into a cohesive and encouraging summary for the user.
+
+Here are the descriptions of the screenshots taken during the user's task:
+
+<descriptions>
+${descriptions?.join('\n\n')}
+</descriptions>
+
+Analyze these descriptions carefully. Look for patterns, progress, and any notable changes in the user's activity over time. Pay attention to signs of focus, productivity, or potential distractions.
+
+Create a summary that encapsulates the user's overall progress and engagement with the task. The summary should be structured as follows:
+1. A general overview of the user's engagement with the task
+2. Highlights of productive periods or achievements
+3. Gentle observations about any periods of distraction or reduced focus
+4. Encouragement for future work on similar tasks
+5. The summary should not exceed 200 words
+
+Remember, this summary will be shown directly to the user. Use a friendly, supportive, and motivational tone. Address the user in the second person ("you", "your") to make the summary more personal and direct.
+
+Provide your summary within <summary> tags. Here's an example of how your response should be structured:
+
+<summary>
+You've been making steady progress on your task! Over the past [time period], you've shown great focus, especially when [specific productive activity]. While there were a few moments where [brief mention of distraction], you quickly got back on track. Keep up the great work - your dedication is clearly showing in your results!
+</summary>
+
+Now, based on the provided descriptions, create your encouraging and insightful summary for the user.`;
+};
