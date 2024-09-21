@@ -28,12 +28,7 @@ export function createGoal(data: {
   })
 }
 
-export function fetchStartGoal(data: {
-  address: string
-  goalId: string
-  zoneId: string
-  startedAt: string
-}) {
+export function fetchStartGoal(data: { address: string; goalId: string; startedAt: string }) {
   return request('/api/goals/start', {
     data
   })
@@ -45,7 +40,7 @@ export function getCalculateGoal(data: { goalId: string }) {
   })
 }
 
-export function finishGoal(data: { goalId: string }) {
+export function finishGoal(data: { goalId: string; sessionId: string }) {
   return request('/api/goals/finish', {
     data
   })

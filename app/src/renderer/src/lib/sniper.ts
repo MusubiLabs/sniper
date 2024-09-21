@@ -491,7 +491,7 @@ const abi = [
   }
 ];
 
-interface SniperSession {
+interface SniperZone {
   ipfsHash: string;
   startTime: bigint;
   duration: bigint;
@@ -538,24 +538,24 @@ class SniperContract {
     });
   }
 
-  async createSniperSession(
+  async createSniperZone(
     ipfsHash: string,
     startTime: bigint,
     duration: bigint
   ): Promise<any> {
-    return this.contractInstance.write.createSniperSession([
+    return this.contractInstance.write.createSniperZone([
       startTime,
       duration,
       ipfsHash,
     ]);
   }
 
-  async completeSession(
+  async completeZone(
     user: string,
     zoneId: bigint,
     details: CompletedDetails
   ): Promise<any> {
-    return this.contractInstance.write.completeSession([
+    return this.contractInstance.write.completeZone([
       user,
       zoneId,
       details,
@@ -578,8 +578,8 @@ class SniperContract {
     return this.contractInstance.read.signProtocol();
   }
 
-  async getUserSession(user: string, zoneId: bigint): Promise<SniperSession> {
-    return this.contractInstance.read.userSessions([user, zoneId]);
+  async getUserZone(user: string, zoneId: bigint): Promise<SniperZone> {
+    return this.contractInstance.read.userZones([user, zoneId]);
   }
 }
 

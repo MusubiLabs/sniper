@@ -58,21 +58,23 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
       setIsStarting(true)
 
       // TODO 链上创建记录
-      const zone = await sniperContract.createFocusSession(
+      const hash = await sniperContract.createSniperZone(
         goalIpfsCid,
         BigInt(Date.now()),
         BigInt(duration * 60 * 1000)
       )
 
-      console.log('zone', zone)
+      console.log('hash', hash)
 
-      await startGoalMutate.mutateAsync({
+      await sniperContract.publicClient.waitForTransactionReceipt({ hash })
+
+      startGoalMutate.mutate({
         address: wallet?.address,
         goalId: goalId,
-        zoneId: zone,
         startedAt: startDate.toString()
       })
-    } catch {
+    } catch (error) {
+      console.error('error', error)
       toast({
         title: 'Something is wrong. Please try again.',
         variant: 'destructive'
@@ -100,7 +102,7 @@ export default function StartGoal({ data, refetch }: { data: any; refetch: () =>
       )}
       {isStarted && (
         <div className="flex flex-col items-center gap-2">
-          <FinishGoal goalId={goalId} refetch={refetch} />
+          <FinishGoal ifpsCid={data.goalIpfsCid} goalId={goalId} refetch={refetch} />
           <TimeTracker startedAt={data.startedAt} />
         </div>
       )}

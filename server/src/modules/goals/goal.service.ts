@@ -146,11 +146,11 @@ export class GoalsService {
     console.log(zoneId);
 
     if (!zoneId) {
-      throw new Error('Session id not found');
+      throw new Error('Zone id not found');
     }
 
     if (!zoneId || !user) {
-      throw new Error('Session id or user id not found');
+      throw new Error('Zone id or user id not found');
     }
 
     // 未开始或者已经结束，则直接报错

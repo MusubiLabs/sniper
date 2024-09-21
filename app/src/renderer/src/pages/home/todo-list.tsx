@@ -91,7 +91,9 @@ export default function TODO() {
       duration: Number(values.duration)
     })
 
-    if (!ipfsResult.cid) {
+    console.log('ipfsResult', ipfsResult)
+
+    if (!ipfsResult.IpfsHash) {
       setIsLoading(false)
 
       toast({
@@ -109,7 +111,7 @@ export default function TODO() {
       description: values?.description || '',
       duration: Number(values.duration),
       address: wallet?.address!,
-      goalIpfsCid: ipfsResult.cid
+      goalIpfsCid: ipfsResult.IpfsHash
     })
   }
 

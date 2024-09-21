@@ -66,7 +66,7 @@ export default function LoginLayer({ children }: { children: ReactNode }) {
         <DynamicConnectButton>
           <Button className="bg-[#FF6600] hover:bg-[#FF8533] text-white font-bold py-2 px-4 rounded-md shadow-lg transform transition duration-200 ease-in-out hover:scale-105 flex items-center space-x-2">
             <Wallet className="h-5 w-5" />
-            <span>连接钱包</span>
+            <span>Connect Wallet</span>
           </Button>
         </DynamicConnectButton>
       </div>

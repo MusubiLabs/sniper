@@ -7,15 +7,32 @@ import {
   DialogHeader,
   DialogTrigger
 } from '@renderer/components/ui/dialog'
-import { client } from '@renderer/lib/client'
+import { getUserLastestZone } from '@renderer/graph'
+import { useToast } from '@renderer/hooks/use-toast'
+import { useConnectedWallet } from '@renderer/hooks/useConnectedWallet'
 import { finishGoal, getCalculateGoal, GoalsQueryEnum } from '@renderer/services'
+import { useWeb3Content } from '@renderer/stores/web3-content'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { PauseIcon } from 'lucide-react'
 import { useState } from 'react'
 
-export default function FinishGoal({ goalId, refetch }: { goalId: string; refetch: () => void }) {
+export default function FinishGoal({
+  goalId,
+  refetch,
+  ifpsCid
+}: {
+  goalId: string
+  refetch: () => void
+  ifpsCid: string
+}) {
   const [open, setOpen] = useState(false)
   const [isFinishPending, setIsFinishPending] = useState(false)
+  const { toast } = useToast()
+  const wallet = useConnectedWallet()
+
+  const { sniperContract } = useWeb3Content((state) => ({
+    sniperContract: state.snipertContract
+  }))
 
   const { data: caculateResult } = useQuery({
     queryKey: [GoalsQueryEnum.GOAL_CACULATE, goalId],
@@ -29,25 +46,34 @@ export default function FinishGoal({ goalId, refetch }: { goalId: string; refetc
     onSuccess() {
       setIsFinishPending(false)
       setOpen(false)
+      refetch()
     },
     onMutate() {
       setIsFinishPending(true)
+    },
+    onSettled() {
+      setIsFinishPending(false)
     }
   })
 
-  const handleFinishGoal = () => {
+  const handleFinishGoal = async () => {
     setIsFinishPending(true)
-
+    const zone = await getUserLastestZone(wallet?.address!)
+    const zoneId = zone.zoneId
+    console.log('zoneId', zone, zoneId)
     // 停止截图
-    client.stopScreenshotTask()
-
-    // 上传结果到链端
-
+    // client.stopScreenshotTask()
+    if (!zoneId) {
+      toast({
+        title: 'Something is wrong. Please try again.',
+        description: 'Please try again.',
+        variant: 'destructive'
+      })
+      return
+    }
     // 更新数据库
-    finishMutate.mutate({ goalId })
+    await finishMutate.mutateAsync({ goalId, zoneId })
   }
-
-  console.log('caculateResult', caculateResult)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

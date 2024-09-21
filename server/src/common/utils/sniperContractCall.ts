@@ -21,7 +21,7 @@ export default async function sniperContractCall(
   const contract = new ethers.Contract(contractAddress, abi, wallet);
 
   try {
-    const tx = await contract.completeSession(userId, zoneId, details);
+    const tx = await contract.completeZone(userId, zoneId, details);
     console.log('Transaction hash:', tx.hash);
 
     const receipt = await tx.wait();
