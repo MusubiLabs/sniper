@@ -1,0 +1,8 @@
+{
+  "optimism-sepolia": {
+    "SniperPartyManager": {
+      "address": "0x4d9DbdF30180273093BF1Cd4cBa96664eb415fcA",
+      "startBlock": 17569370
+    }
+  }
+}

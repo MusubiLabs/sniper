@@ -1,0 +1,42 @@
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PartyCreated @entity(immutable: true) {
+  id: Bytes!
+  creator: Bytes! # address
+  maciInstance: Bytes! # address
+  partyId: BigInt! # uint256
+  pollId: BigInt! # uint256
+  sniperPartyCredit: Bytes! # address
+  endTime: BigInt! # uint256
+  votingEndTime: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PartyJoined @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  partyId: BigInt! # uint256
+  zoneId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PartySponsored @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  amount: BigInt! # uint256
+  partyCoinsReceived: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
