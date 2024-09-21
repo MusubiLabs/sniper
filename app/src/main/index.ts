@@ -11,7 +11,7 @@ registerIpcMain(router)
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1125,
+    width: 1130,
     height: 850,
     show: false,
     autoHideMenuBar: true,
