@@ -3,13 +3,7 @@ import sniperModule from "../ignition/modules/sniper";
 import worldVerifierModule from "../ignition/modules/WorldVerifier";
 import sniperCoinModule from "../ignition/modules/SniperCoin";
 import sphookModule from "../ignition/modules/SniperSPhook"; 
-import {
-    SignProtocolClient,
-    SpMode,
-    EvmChains,
-    DataLocationOnChain,
-} from '@ethsign/sp-sdk';
-import { privateKeyToAccount } from "viem/accounts";
+import { createCompleteSchema } from "./utils";
 
 async function main() {
     const [deployer] = await hre.viem.getWalletClients();
@@ -23,21 +17,7 @@ async function main() {
         });
         spHook = await hre.ignition.deploy(sphookModule, {});
         spHook = spHook.spHook;
-        completeSchema = await client.createSchema({
-            name: "zoneCompleted",
-            registrant: account.address,
-            dataLocation: DataLocationOnChain.ONCHAIN,
-            revocable: true,
-            hook: spHook.address,
-            data: [
-                { name: "zoneId", type: "uint256" },
-                { name: "productivityScore", type: "uint256" },
-                { name: "distractionScore", type: "uint256" },
-                { name: "observations", type: "string" },
-                { name: "assessment", type: "string" },
-                { name: "feedback", type: "string" },
-            ]
-        })
+        completeSchema = await createCompleteSchema(spHook.address)
         console.log('completeSchema:', completeSchema.schemaId);
         console.log(`spHook deployed to: ${await spHook.address}`);
 
