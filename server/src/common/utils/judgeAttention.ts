@@ -69,5 +69,6 @@ export default async function judgeAttention({
     productivity_score: functionCallResult?.productivity_score,
     assessment: functionCallResult?.assessment,
     feedback: functionCallResult?.feedback,
+    reason: functionCallResult?.reason,
   };
 }

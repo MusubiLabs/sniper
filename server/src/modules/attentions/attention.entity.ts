@@ -32,4 +32,7 @@ export class Attention extends BaseEntity {
 
   @Column('simple-array', { comment: '用户截图列表', default: [] })
   screens: string[];
+  
+  @Column('text', { comment: '用户走神的原因', nullable: true })
+  reason: string;
 }

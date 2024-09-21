@@ -1,7 +1,7 @@
 import { Attention } from 'src/modules/attentions/attention.entity';
 
 export const systemPrompts = `
-You are an automated productivity assistant tasked with evaluating a user's productivity based on screenshots of their screen(s) taken every two minutes. Your goal is to assess whether the user is efficiently working towards completing their goal and provide constructive feedback.
+You are an automated productivity assistant tasked with evaluating a user's productivity based on screenshots of their screen(s). Your goal is to assess whether the user is efficiently working towards completing their goal and provide constructive feedback.
 `;
 
 export const userPrompts = (goal: string, description: string) => {
@@ -32,6 +32,7 @@ After your analysis, provide an evaluation of the user's productivity. Your eval
 4. Suggestions for improvement, if necessary.
 5. A productivity score on a scale of 1-10, where 1 is completely unproductive and 10 is maximally productive.
 6. Determine whether the user has completed their goals seriously based on their goals and current screenshots. If the productivity score is less than 6, you should assume that the task user is not seriously committed to their goals, and your judgment logic needs to be very strict. Your judgment will help the user improve their quality of life.
+7. Based on the user's current screenshot, if the user is distracted, determine the reason for the user's current distraction. The currently available reasons for distraction include scrolling through Twitter, YouTube, shopping. If the reason is not within the scope of the content, return to others
 `;
 };
 
@@ -61,12 +62,18 @@ export const functions = [
           type: 'string',
           description: 'Feedback and improvement suggestions for the user',
         },
+        reason: {
+          type: 'string',
+          enum: ['twitter', 'youtube', 'shopping', 'others'],
+          description: 'Reason for the user being distracted',
+        },
       },
       required: [
         'observations',
         'productivity_score',
         'assessment',
         'feedback',
+        'reason',
       ],
     },
   },
