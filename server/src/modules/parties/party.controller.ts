@@ -4,7 +4,7 @@ import { PartyService } from './party.service';
 
 @Controller('party')
 export class PartyController {
-  constructor(private readonly partyService: PartyService) {}
+  constructor(private readonly partyService: PartyService) { }
 
   @Post('create')
   create(@Body() body: Partial<Party>): Promise<Party> {
@@ -17,12 +17,16 @@ export class PartyController {
   }
 
   @Post('finish')
-  finishParty(@Body() body: { partyId: string }) {
-    return this.partyService.finishParty(body.partyId);
+  finishParty(@Body() body: { partyId: string, pollId: string, maciInstance: string }) {
+    return this.partyService.finishParty(body.partyId, body.pollId, body.maciInstance);
   }
 
-  @Post('vote-result')
-  getVoteResult(@Body() body: { partyId: string }) {
-    return this.partyService.getVoteResult(body.partyId);
+  @Post('vote-results')
+  getVoteResults(@Body() body: { partyId: string[] }) {
+    return this.partyService.getVoteResults(body.partyId);
+  }
+  @Post('claim-data')
+  getClaimData(@Body() body: { partyId: string, recipientIndex: number, recipientTreeDepth: number }) {
+    return this.partyService.getClaimData(body.partyId, body.recipientIndex, body.recipientTreeDepth);
   }
 }

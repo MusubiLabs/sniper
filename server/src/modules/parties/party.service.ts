@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 import { Party } from './party.entity';
-
+import { getRecipientClaimData, getTally, tallyVotes } from 'src/common/utils/maci';
 @Injectable()
 export class PartyService {
   constructor(
@@ -19,16 +19,17 @@ export class PartyService {
     return this.partyRepository.find();
   }
 
-  async finishParty(partyId: string) {
-    return {
-      data: 'finish party',
-    };
+  async finishParty(partyId: string,  pollId : string, maciInstance: string) {
+    const result = await tallyVotes(BigInt(partyId), BigInt(pollId), maciInstance);
+    return result;
   }
   
-  async getVoteResult(partyId: string) {
-    return {
-      data: 'get vote result',
-    };
+  async getVoteResults(partyId: string[]) {
+    return partyId.map((id) => { getTally(BigInt(id))})
   }
   
+  async getClaimData(partyId: string, recipientIndex: number, recipientTreeDepth: number) {
+    return getRecipientClaimData(BigInt(partyId), recipientIndex, recipientTreeDepth);
+  }
+
 }
