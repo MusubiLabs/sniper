@@ -15,4 +15,9 @@ export class PartyController {
   findAll(): Promise<Party[]> {
     return this.partyService.findAll();
   }
+  
+  @Post('finish')
+  finishParty(@Body() body: { partyId: string }) {
+    return this.partyService.finishParty(body.partyId);
+  }
 }
